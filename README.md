@@ -32,7 +32,7 @@ fpdf
 How to Run
 Clone the Repository:
 
-git clone https://github.com/Anilkumar322/AI-Predictive-Methods-for-Credit-underwriting.git
+git clone https://github.com/nonehxrry/AI-PREDICTIVE-MODEL-FOR-CREDIT-UNDERWRITING/
 cd AI-Predictive-Methods-for-Credit-underwriting
 Install Dependencies:
 
