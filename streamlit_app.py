@@ -16,30 +16,44 @@ st.markdown(
     """
     <style>
         body {
-            background: linear-gradient(to right, #ffffff, #e6f7ff);
-            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #f0f4f8, #d9e4f5);
+            font-family: 'Verdana', sans-serif;
         }
         .header-container {
-            background: linear-gradient(to right, #4CAF50, #5ecf5e);
+            background: linear-gradient(to right, #007BFF, #66B2FF);
             color: white;
             padding: 30px;
             border-radius: 10px;
             text-align: center;
             margin-bottom: 20px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
         }
         .header-container h1 {
-            font-size: 40px;
+            font-size: 42px;
+            font-weight: bold;
         }
         .header-container p {
-            font-size: 20px;
+            font-size: 22px;
             margin-top: 5px;
         }
         footer {
             text-align: center;
             margin-top: 50px;
-            font-size: 14px;
-            color: #666;
+            font-size: 16px;
+            color: #444;
+        }
+        .stButton>button {
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .stButton>button:hover {
+            background-color: #218838;
+        }
+        .stSlider>div {
+            color: #007BFF;
         }
     </style>
     """,
