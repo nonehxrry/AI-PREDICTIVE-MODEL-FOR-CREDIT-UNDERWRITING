@@ -52,7 +52,7 @@ langdetect
 
 ### Clone the Repository:
 ```bash
-git clone https://github.com/Anilkumar322/AI-Predictive-Methods-for-Credit-underwriting.git
+git clone https://github.com/nonehxrry/AI-PREDICTIVE-MODEL-FOR-CREDIT-UNDERWRITING/
 cd AI-Predictive-Methods-for-Credit-underwriting
 ```
 
@@ -104,7 +104,7 @@ The app provides the following input fields in the sidebar:
 ## Deployment
 
 The application is live and can be accessed at:
-[AI Predictive Methods for Credit Underwriting](https://ai-predictive-methods-for-credit-underwriting-csu8gym5fctrsyru.streamlit.app/)
+[https://ai-predictive-model-for-credit-underwriting-lbfypnypbmpy8ixieq.streamlit.app/)
 
 To deploy the app on **Streamlit Cloud**:
 
@@ -132,10 +132,10 @@ This project is licensed under the **MIT License**. See the `LICENSE` file for d
 
 ## Contributors
 
-- **Bollapalli Anil Kumar** (Developer)
-- [GitHub Profile](https://github.com/Anilkumar322)
+- **Harjit Singh Bhadauriya** (Developer)
+- [GitHub Profile](https://github.com/nonehxrry)
 
 ## Feedback
 
-For any issues or suggestions, please open an **issue** on the [GitHub repository](https://github.com/Anilkumar322/AI-Predictive-Methods-for-Credit-underwriting/issues).
+For any issues or suggestions, please open an **issue** on the [GitHub repository](https://github.com/nonehxrry/AI-PREDICTIVE-MODEL-FOR-CREDIT-UNDERWRITING/issues).
 
