@@ -2,6 +2,9 @@
 
 This project is a **Streamlit-based AI Predictive Methods for Credit Underwriting** application that utilizes a machine learning model to predict whether a loan application will be **approved or rejected** based on user-provided inputs. The app also generates a **downloadable PDF report** with detailed results and insights.
 
+## Presentation Link 
+https://www.canva.com/design/DAGd4QHNyMw/PqKP2SuqxH5LwEoZloEbwg/view?utm_content=DAGd4QHNyMw&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h0d00988ec0
+
 ## Features
 
 - **Interactive Web App**: Built with Streamlit for an intuitive and responsive user interface.
