@@ -187,7 +187,9 @@ elif step == "Final Decision":
         pdf.set_font("Arial", size=12)
 
         # Title
+        pdf.set_font("Arial", style="BU", size=12)  # Set font to bold and underline
         pdf.cell(200, 10, txt="Loan Approval Prediction Report", ln=True, align="C")
+        pdf.set_font("Arial", size=12)  # Reset font to normal
         pdf.ln(10)
 
         # Personal Information
