@@ -184,8 +184,12 @@ elif step == "Final Decision":
         # Generate PDF Report
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", size=12)
 
+        # Add a Unicode-compatible font (e.g., DejaVuSans)
+        pdf.add_font('DejaVuSans', '', 'DejaVuSans.ttf', uni=True)
+        pdf.set_font("DejaVuSans", size=12)
+
+        # Title
         pdf.cell(200, 10, txt="Loan Approval Prediction Report", ln=True, align="C")
         pdf.ln(10)
 
