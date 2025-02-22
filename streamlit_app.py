@@ -217,7 +217,8 @@ elif step == "Final Decision":
 
         # Save PDF to buffer
         buffer = BytesIO()
-        pdf.output(buffer)
+        pdf_bytes = pdf.output(dest="S").encode("latin1")  # Encode the PDF content
+        buffer.write(pdf_bytes)
         buffer.seek(0)
 
         st.download_button(
