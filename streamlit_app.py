@@ -283,6 +283,59 @@ elif st.session_state["current_step"] == "Final Decision":
         file_name="loan_prediction_report.pdf",
         mime="application/pdf"
     )
+    # Function to generate PDF
+def generate_pdf(data):
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(200, 10, "Loan Application Report", ln=True, align="C")
+
+    pdf.ln(10)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Personal Information", ln=True)
+    
+    pdf.set_font("Arial", "", 12)
+    pdf.cell(0, 10, f"Full Name: {data['full_name']}", ln=True)
+    pdf.cell(0, 10, f"Email: {data['email']}", ln=True)
+    pdf.cell(0, 10, f"Phone: {data['phone']}", ln=True)
+
+    pdf.ln(5)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Loan Details", ln=True)
+    
+    pdf.set_font("Arial", "", 12)
+    pdf.cell(0, 10, f"CIBIL Score: {data['cibil_score']}", ln=True)
+    pdf.cell(0, 10, f"Annual Income: ₹{data['income_annum']:,}", ln=True)
+    pdf.cell(0, 10, f"Loan Amount: ₹{data['loan_amount']:,}", ln=True)
+    pdf.cell(0, 10, f"Loan Term: {data['loan_term']} months", ln=True)
+    pdf.cell(0, 10, f"Estimated EMI: ₹{data['emi']:.2f}" if data["emi"] else "EMI: Not Calculated", ln=True)
+    
+    pdf.ln(5)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "Other Details", ln=True)
+    
+    pdf.set_font("Arial", "", 12)
+    pdf.cell(0, 10, f"Gender: {data['gender']}", ln=True)
+    pdf.cell(0, 10, f"Marital Status: {data['marital_status']}", ln=True)
+    pdf.cell(0, 10, f"Employment Status: {data['employee_status']}", ln=True)
+    pdf.cell(0, 10, f"Residence Type: {data['residence_type']}", ln=True)
+    pdf.cell(0, 10, f"Loan Purpose: {data['loan_purpose']}", ln=True)
+
+    pdf.ln(10)
+    pdf.set_font("Arial", "I", 10)
+    pdf.cell(0, 10, "Generated using AI Predictive Methods for Credit Underwriting", ln=True, align="C")
+
+    # Save PDF to bytes buffer
+    pdf_output = BytesIO()
+    pdf.output(pdf_output, "F")
+    return pdf_output.getvalue()
+
+# Generate and Download PDF
+if st.button("Generate Report PDF"):
+    pdf_data = generate_pdf(st.session_state["loan_details"])
+    st.download_button("Download Report", data=pdf_data, file_name="loan_application_report.pdf", mime="application/pdf")
+
 
     except Exception as e:
         st.error(f"Prediction failed: {e}")
