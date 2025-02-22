@@ -181,46 +181,6 @@ elif step == "Final Decision":
             st.markdown("### Loan Approved ✅")
             st.success(f"Approval Probability: {prediction_proba[0][0]:.2f}")
 
-   # Step 4: Final Decision
-elif step == "Final Decision":
-    st.markdown("### Step 4: Final Decision")
-    loan_details = st.session_state["loan_details"]
-
-    # Prepare input data for prediction
-    input_data = pd.DataFrame({
-        "cibil_score": [loan_details["cibil_score"]],
-        "income_annum": [loan_details["income_annum"]],
-        "loan_amount": [loan_details["loan_amount"]],
-        "loan_term": [loan_details["loan_term"]],
-        "loan_percent_income": [loan_details["loan_percent_income"]],
-        "active_loans": [loan_details["active_loans"]],
-        "gender": [1 if loan_details["gender"] == "Women" else 0],
-        "marital_status": [1 if loan_details["marital_status"] == "Married" else 0],
-        "employee_status_self_employed": [1 if loan_details["employee_status"] == "self employed" else 0],
-        "employee_status_unemployed": [1 if loan_details["employee_status"] == "unemployed" else 0],
-        "employee_status_student": [1 if loan_details["employee_status"] == "student" else 0],
-        "residence_type_OWN": [1 if loan_details["residence_type"] == "OWN" else 0],
-        "residence_type_RENT": [1 if loan_details["residence_type"] == "RENT" else 0],
-        "loan_purpose_Personal": [1 if loan_details["loan_purpose"] == "Personal" else 0],
-        "loan_purpose_Home_Renovation": [1 if loan_details["loan_purpose"] == "Home Renovation" else 0],
-        "loan_purpose_Education": [1 if loan_details["loan_purpose"] == "Education" else 0],
-        "loan_purpose_Vehicle": [1 if loan_details["loan_purpose"] == "Vehicle" else 0],
-    })
-
-    input_data = input_data.reindex(columns=model.feature_names_in_, fill_value=0)
-
-    # Prediction
-    try:
-        prediction = model.predict(input_data)
-        prediction_proba = model.predict_proba(input_data)
-
-        if prediction[0] == 1:
-            st.markdown("### Loan Rejected ❌")
-            st.error(f"Rejection Probability: {prediction_proba[0][1]:.2f}")
-        else:
-            st.markdown("### Loan Approved ✅")
-            st.success(f"Approval Probability: {prediction_proba[0][0]:.2f}")
-
         # Generate PDF Report
         pdf = FPDF()
         pdf.add_page()
@@ -268,7 +228,6 @@ elif step == "Final Decision":
         )
     except Exception as e:
         st.error(f"Prediction failed: {e}")
-        
 # Footer
 st.markdown(
     """
