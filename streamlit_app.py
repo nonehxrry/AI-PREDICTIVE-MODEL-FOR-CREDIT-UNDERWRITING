@@ -1,4 +1,3 @@
-from matplotlib.pyplot import step
 import streamlit as st
 import pandas as pd
 import joblib
@@ -8,10 +7,6 @@ from transformers import pipeline
 from langdetect import detect
 import math
 import os
-import re
-import io
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 
 # Set page configuration
 st.set_page_config(
@@ -66,18 +61,16 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-import streamlit as st
-import joblib
-import pandas as pd
-import re
-from io import BytesIO
-from fpdf import FPDF
-
-# Load the trained ML model
+# Load the trained model
 model_path = 'best_features_model.pkl'
-model = joblib.load(model_path)
+try:
+    model = joblib.load(model_path)
+    st.success("Model loaded successfully!")
+except FileNotFoundError:
+    st.error(f"Model file not found: {model_path}")
+    st.stop()
 
-# Initialize session state variables
+# Initialize session state
 if "loan_details" not in st.session_state:
     st.session_state["loan_details"] = {
         "full_name": "",
@@ -99,108 +92,58 @@ if "loan_details" not in st.session_state:
         "address_proof": None
     }
 
-if "current_step" not in st.session_state:
-    st.session_state["current_step"] = "Personal Information"
+# Navigation menu
+step = st.radio(
+    "Navigate through the steps:",
+    ["Personal Information", "Loan Details", "Upload Documents", "Final Decision"]
+)
 
-# Step Navigation Functions
-def next_step():
-    steps = ["Personal Information", "Loan Details", "Upload Documents", "Final Decision"]
-    current_index = steps.index(st.session_state["current_step"])
-    if current_index < len(steps) - 1:
-        st.session_state["current_step"] = steps[current_index + 1]
+# Step 1: Personal Information
+if step == "Personal Information":
+    st.markdown("### Step 1: Personal Information")
+    st.session_state["loan_details"]["full_name"] = st.text_input("Full Name", st.session_state["loan_details"]["full_name"])
+    st.session_state["loan_details"]["email"] = st.text_input("Email Address", st.session_state["loan_details"]["email"])
+    st.session_state["loan_details"]["phone"] = st.text_input("Phone Number", st.session_state["loan_details"]["phone"])
 
-def prev_step():
-    steps = ["Personal Information", "Loan Details", "Upload Documents", "Final Decision"]
-    current_index = steps.index(st.session_state["current_step"])
-    if current_index > 0:
-        st.session_state["current_step"] = steps[current_index - 1]
-
-# Display the current step title
-st.markdown(f"## {st.session_state['current_step']}")
-
-# -------------------------
-# STEP 1: PERSONAL INFORMATION
-# -------------------------
-if st.session_state["current_step"] == "Personal Information":
-    full_name = st.text_input("Full Name", st.session_state["loan_details"]["full_name"])
-    if full_name and not re.match(r"^[A-Za-z\s]+$", full_name):
-        st.warning("⚠️ Please enter a valid name (only letters and spaces).")
-    else:
-        st.session_state["loan_details"]["full_name"] = full_name
-
-    email = st.text_input("Email Address", st.session_state["loan_details"]["email"])
-    if email and not re.match(r"^\S+@\S+\.\S+$", email):
-        st.warning("⚠️ Please enter a valid email address.")
-    else:
-        st.session_state["loan_details"]["email"] = email
-
-    phone = st.text_input("Phone Number", st.session_state["loan_details"]["phone"])
-    if phone and not re.match(r"^\d{10}$", phone):
-        st.warning("⚠️ Please enter a valid 10-digit phone number.")
-    else:
-        st.session_state["loan_details"]["phone"] = phone
-
-    st.button("Next", on_click=next_step)
-
-# -------------------------
-# STEP 2: LOAN DETAILS
-# -------------------------
-elif st.session_state["current_step"] == "Loan Details":
-
+# Step 2: Loan Details
+elif step == "Loan Details":
+    st.markdown("### Step 2: Loan Details")
     st.session_state["loan_details"]["cibil_score"] = st.slider("CIBIL Score (300-900):", 300, 900, st.session_state["loan_details"]["cibil_score"])
     st.session_state["loan_details"]["income_annum"] = st.number_input("Annual Income (INR):", min_value=0, step=10000, value=st.session_state["loan_details"]["income_annum"])
     st.session_state["loan_details"]["loan_amount"] = st.number_input("Loan Amount (INR):", min_value=0, step=10000, value=st.session_state["loan_details"]["loan_amount"])
     st.session_state["loan_details"]["loan_term"] = st.number_input("Loan Term (Months):", min_value=1, step=1, value=st.session_state["loan_details"]["loan_term"])
+    st.session_state["loan_details"]["loan_percent_income"] = st.number_input("Loan Percent of Income (%):", min_value=0.0, step=0.1, value=st.session_state["loan_details"]["loan_percent_income"])
     st.session_state["loan_details"]["active_loans"] = st.number_input("Number of Active Loans:", min_value=0, step=1, value=st.session_state["loan_details"]["active_loans"])
     st.session_state["loan_details"]["gender"] = st.selectbox("Gender:", ["Men", "Women"], index=0 if st.session_state["loan_details"]["gender"] == "Men" else 1)
     st.session_state["loan_details"]["marital_status"] = st.selectbox("Marital Status:", ["Single", "Married"], index=0 if st.session_state["loan_details"]["marital_status"] == "Single" else 1)
     st.session_state["loan_details"]["employee_status"] = st.selectbox("Employment Status:", ["employed", "self employed", "unemployed", "student"], index=["employed", "self employed", "unemployed", "student"].index(st.session_state["loan_details"]["employee_status"]))
     st.session_state["loan_details"]["residence_type"] = st.selectbox("Residence Type:", ["MORTGAGE", "OWN", "RENT"], index=["MORTGAGE", "OWN", "RENT"].index(st.session_state["loan_details"]["residence_type"]))
     st.session_state["loan_details"]["loan_purpose"] = st.selectbox("Loan Purpose:", ["Vehicle", "Personal", "Home Renovation", "Education", "Medical", "Other"], index=["Vehicle", "Personal", "Home Renovation", "Education", "Medical", "Other"].index(st.session_state["loan_details"]["loan_purpose"]))
-    
-    
+
     # EMI Calculator
     st.markdown("### Loan EMI Calculator")
     loan_amount = st.session_state["loan_details"]["loan_amount"]
     loan_term_years = st.session_state["loan_details"]["loan_term"] / 12
     interest_rate = st.number_input("Interest Rate (%):", min_value=0.1, max_value=15.0, step=0.1, value=7.5)
-    
     monthly_rate = interest_rate / (12 * 100)
     tenure_months = loan_term_years * 12
-    
     if loan_amount > 0 and tenure_months > 0:
         emi = (loan_amount * monthly_rate * (1 + monthly_rate) ** tenure_months) / ((1 + monthly_rate) ** tenure_months - 1)
         st.session_state["loan_details"]["emi"] = emi
         st.write(f"**Estimated EMI:** ₹{emi:,.2f}")
+    else:
+        st.session_state["loan_details"]["emi"] = None
+        st.write("Please provide valid loan amount and term.")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.button("Previous", on_click=prev_step)
-    with col2:
-        st.button("Next", on_click=next_step)
+# Step 3: Upload Documents
+elif step == "Upload Documents":
+    st.markdown("### Step 3: Upload Documents")
+    st.session_state["loan_details"]["id_proof"] = st.file_uploader("Upload ID Proof")
+    st.session_state["loan_details"]["address_proof"] = st.file_uploader("Upload Address Proof")
 
-# -------------------------
-# STEP 3: UPLOAD DOCUMENTS
-# -------------------------
-elif st.session_state["current_step"] == "Upload Documents":
-    uploaded_id = st.file_uploader("Upload ID Proof")
-    if uploaded_id is not None:
-        st.session_state["loan_details"]["id_proof"] = uploaded_id
-
-    uploaded_address = st.file_uploader("Upload Address Proof")
-    if uploaded_address is not None:
-        st.session_state["loan_details"]["address_proof"] = uploaded_address
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.button("Previous", on_click=prev_step)
-    with col2:
-        st.button("Next", on_click=next_step)
-
-# -------------------------
-# STEP 4: FINAL DECISION
-# -------------------------
-elif st.session_state["current_step"] == "Final Decision":
+# Step 4: Final Decision
+elif step == "Final Decision":
+    st.markdown("### Step 4: Final Decision")
     loan_details = st.session_state["loan_details"]
 
     # Prepare input data for prediction
@@ -223,10 +166,10 @@ elif st.session_state["current_step"] == "Final Decision":
         "loan_purpose_Education": [1 if loan_details["loan_purpose"] == "Education" else 0],
         "loan_purpose_Vehicle": [1 if loan_details["loan_purpose"] == "Vehicle" else 0],
     })
-    
+
     input_data = input_data.reindex(columns=model.feature_names_in_, fill_value=0)
 
-    #prediction
+    # Prediction
     try:
         prediction = model.predict(input_data)
         prediction_proba = model.predict_proba(input_data)
@@ -238,189 +181,53 @@ elif st.session_state["current_step"] == "Final Decision":
             st.markdown("### Loan Approved ✅")
             st.success(f"Approval Probability: {prediction_proba[0][0]:.2f}")
 
-
-    # Function to generate PDF
-    def generate_pdf(data):
+        # Generate PDF Report
         pdf = FPDF()
-        pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
-        pdf.set_font("Arial", "B", 16)
-        pdf.cell(200, 10, "Loan Application Report", ln=True, align="C")
-    
+        pdf.add_font('FreeSerif', '', 'FreeSerif.ttf', uni=True)
+        pdf.set_font("FreeSerif", size=12)
+
+        pdf.cell(200, 10, txt="Loan Approval Prediction Report", ln=True, align="C")
         pdf.ln(10)
-        pdf.set_font("Arial", "B", 12)
-        pdf.cell(0, 10, "Personal Information", ln=True)
-        
-        pdf.set_font("Arial", "", 12)
-        pdf.cell(0, 10, f"Full Name: {data['full_name']}", ln=True)
-        pdf.cell(0, 10, f"Email: {data['email']}", ln=True)
-        pdf.cell(0, 10, f"Phone: {data['phone']}", ln=True)
-    
-        pdf.ln(5)
-        pdf.set_font("Arial", "B", 12)
-        pdf.cell(0, 10, "Loan Details", ln=True)
-        
-        pdf.set_font("Arial", "", 12)
-        pdf.cell(0, 10, f"CIBIL Score: {data['cibil_score']}", ln=True)
-        pdf.cell(0, 10, f"Annual Income: ₹{data['income_annum']:,}", ln=True)
-        pdf.cell(0, 10, f"Loan Amount: ₹{data['loan_amount']:,}", ln=True)
-        pdf.cell(0, 10, f"Loan Term: {data['loan_term']} months", ln=True)
-        pdf.cell(0, 10, f"Estimated EMI: ₹{data['emi']:.2f}" if data["emi"] else "EMI: Not Calculated", ln=True)
-        
-        pdf.ln(5)
-        pdf.set_font("Arial", "B", 12)
-        pdf.cell(0, 10, "Other Details", ln=True)
-        
-        pdf.set_font("Arial", "", 12)
-        pdf.cell(0, 10, f"Gender: {data['gender']}", ln=True)
-        pdf.cell(0, 10, f"Marital Status: {data['marital_status']}", ln=True)
-        pdf.cell(0, 10, f"Employment Status: {data['employee_status']}", ln=True)
-        pdf.cell(0, 10, f"Residence Type: {data['residence_type']}", ln=True)
-        pdf.cell(0, 10, f"Loan Purpose: {data['loan_purpose']}", ln=True)
-    
+
+        # Personal Information
+        pdf.cell(200, 10, txt="Personal Information:", ln=True)
+        pdf.cell(200, 10, txt=f"Full Name: {loan_details.get('full_name', 'N/A')}", ln=True)
+        pdf.cell(200, 10, txt=f"Email: {loan_details.get('email', 'N/A')}", ln=True)
+        pdf.cell(200, 10, txt=f"Phone: {loan_details.get('phone', 'N/A')}", ln=True)
         pdf.ln(10)
-        pdf.set_font("Arial", "I", 10)
-        pdf.cell(0, 10, "Generated using AI Predictive Methods for Credit Underwriting", ln=True, align="C")
-    
-        # Save PDF to bytes buffer
-        pdf_output = BytesIO()
-        pdf.output(pdf_output, "F")
-        return pdf_output.getvalue()
-    
-    # Generate and Download PDF
-    if st.button("Generate Report PDF"):
-        pdf_data = generate_pdf(st.session_state["loan_details"])
-        st.download_button("Download Report", data=pdf_data, file_name="loan_application_report.pdf", mime="application/pdf")
-    
-    
-        except Exception as e:
-            st.error(f"Prediction failed: {e}")
-    
-        st.button("Previous", on_click=prev_step)
-    
 
-# --- Sidebar Chatbot Header ---
-st.sidebar.markdown("## 🤖 AI Financial Chatbot")
+        # Loan Details
+        pdf.cell(200, 10, txt="Loan Details:", ln=True)
+        pdf.cell(200, 10, txt=f"CIBIL Score: {loan_details.get('cibil_score', 'N/A')}", ln=True)
+        pdf.cell(200, 10, txt=f"Loan Amount: ₹{loan_details.get('loan_amount', 'N/A')}", ln=True)
+        pdf.cell(200, 10, txt=f"Loan Term: {loan_details.get('loan_term', 'N/A')} months", ln=True)
+        emi_value = loan_details.get("emi", None)
+        if emi_value is not None:
+            pdf.cell(200, 10, txt=f"Estimated EMI: ₹{emi_value:,.2f}", ln=True)
+        else:
+            pdf.cell(200, 10, txt="Estimated EMI: Not Calculated", ln=True)
+        pdf.ln(10)
 
-# --- Initialize Chat History & Session Variables ---
-if "chat_messages" not in st.session_state:
-    st.session_state["chat_messages"] = [
-        {"role": "bot", "content": "👋 Hello! Ask about loans, EMI, credit scores, or investments!"}
-    ]
-if "last_topic" not in st.session_state:
-    st.session_state["last_topic"] = None  
-if "emi_active" not in st.session_state:
-    st.session_state["emi_active"] = False  
-if "user_input" not in st.session_state:
-    st.session_state["user_input"] = ""  
+        # Prediction Results
+        pdf.cell(200, 10, txt="Prediction Results:", ln=True)
+        pdf.cell(200, 10, txt=f"Prediction: {'Approved' if prediction[0] == 0 else 'Rejected'}", ln=True)
+        pdf.cell(200, 10, txt=f"Approval Probability: {prediction_proba[0][0]:.2f}", ln=True)
+        pdf.cell(200, 10, txt=f"Rejection Probability: {prediction_proba[0][1]:.2f}", ln=True)
 
-# --- Chatbot Response System ---
-def chatbot_response(user_message):
-    user_message = user_message.lower().strip()
-    
-    responses = {
-        "greetings": ["hello", "hi", "hey", "how are you"],
-        "loan": ["loan", "borrow money", "finance", "lending"],
-        "emi": ["emi", "monthly payment", "installment"],
-        "credit_score": ["credit score", "cibil", "credit rating"]
-    }
-    
-    loans = {
-        "Personal Loan": "🏦 **Personal Loan:** ₹50K-₹25L | 10-15% Interest | No Collateral",
-        "Business Loan": "💼 **Business Loan:** ₹5L-₹5Cr | 10-18% Interest | Requires Collateral",
-        "Student Loan": "🎓 **Student Loan:** ₹1L-₹50L | 5-8% Interest",
-        "Home Loan": "🏡 **Home Loan:** ₹10L-₹1Cr | 7-9% Interest",
-        "Car Loan": "🚗 **Car Loan:** ₹1L-₹50L | 8-12% Interest"
-    }
-    
-    if user_message in responses["greetings"]:
-        return "👋 Hello! How can I assist you today?"
-    
-    if any(word in user_message for word in responses["loan"]):
-        st.session_state["last_topic"] = "loan"
-        return "📌 **Loan Help:** Select a loan type below."
-    
-    if st.session_state["last_topic"] == "loan":
-        for key, response in loans.items():
-            if key.lower() in user_message:
-                st.session_state["last_topic"] = None
-                return response
-    
-    if any(word in user_message for word in responses["emi"]):
-        st.session_state["emi_active"] = True
-        return "📊 **EMI Calculator Activated!** Enter loan details below."
-    
-    if any(word in user_message for word in responses["credit_score"]):
-        return "🔍 **Credit Score Guide:**\n- **750+** = Excellent ✅\n- **650-749** = Good 👍\n- **550-649** = Fair ⚠️\n- **Below 550** = Poor ❌"
-    
-    return "🤖 Hmm, I don't have an answer for that. Try asking about loans, EMI, or investments!"
+        # Save PDF to buffer
+        buffer = BytesIO()
+        pdf.output(buffer, "S")
+        buffer.seek(0)
 
-# --- Display Chat History ---
-st.sidebar.markdown("### 💬 Chat History:")
-
-for message in st.session_state["chat_messages"]:
-    if message["role"] == "user":
-        with st.chat_message("user"):
-            st.write(f"👤 **You:** {message['content']}")
-    else:
-        with st.chat_message("assistant"):
-            st.write(f"🤖 **Bot:** {message['content']}")
-
-# --- Loan Selection Dropdown ---
-if st.session_state["last_topic"] == "loan":
-    with st.sidebar:
-        st.markdown("### 📌 Select a Loan Type:")
-        
-        loan_types = {
-            "Personal Loan": "🏦 **Personal Loan:** ₹50K-₹25L | 10-15% Interest | No Collateral",
-            "Business Loan": "💼 **Business Loan:** ₹5L-₹5Cr | 10-18% Interest | Requires Collateral",
-            "Student Loan": "🎓 **Student Loan:** ₹1L-₹50L | 5-8% Interest",
-            "Home Loan": "🏡 **Home Loan:** ₹10L-₹1Cr | 7-9% Interest",
-            "Car Loan": "🚗 **Car Loan:** ₹1L-₹50L | 8-12% Interest"
-        }
-
-        selected_loan = st.selectbox("Select a Loan Type:", list(loan_types.keys()))
-
-        if st.button("🔍 Get Loan Details"):
-            # Add loan details as a bot message
-            st.session_state["chat_messages"].append({"role": "bot", "content": loan_types[selected_loan]})
-            st.session_state["last_topic"] = None  # Reset topic after selection
-            st.rerun()
-
-
-# --- User Input Field ---
-user_input = st.sidebar.text_input("💬 Type your question:", value=st.session_state["user_input"], key="chat_input")
-
-if st.sidebar.button("🚀 Send"):
-    if user_input.strip():
-        st.session_state["chat_messages"].append({"role": "user", "content": user_input})
-        bot_reply = chatbot_response(user_input)
-        st.session_state["chat_messages"].append({"role": "bot", "content": bot_reply})
-        st.session_state["user_input"] = ""
-        st.rerun()
-
-# --- EMI Calculator ---
-if st.session_state["emi_active"]:
-    st.sidebar.markdown("### 📊 EMI Calculator")
-    loan_amount = st.sidebar.number_input("Loan Amount (₹)", min_value=1000, value=500000, step=1000)
-    interest_rate = st.sidebar.number_input("Interest Rate (%)", min_value=1.0, value=10.0, step=0.1)
-    tenure = st.sidebar.number_input("Tenure (Years)", min_value=1, value=5, step=1)
-    
-    if st.sidebar.button("📊 Calculate EMI"):
-        r = (interest_rate / 12) / 100
-        n = tenure * 12
-        emi_result = round((loan_amount * r * (1 + r) ** n) / ((1 + r) ** n - 1), 2)
-        st.sidebar.success(f"📌 Your Monthly EMI: ₹{emi_result:,}")
-
-    if st.sidebar.button("🔄 Reset EMI Calculator"):
-        st.session_state["emi_active"] = False
-        st.rerun()
-
-# --- Clear Chat History Button ---
-if st.sidebar.button("🗑️ Clear Chat History"):
-    st.session_state["chat_messages"] = []
-    st.session_state["last_topic"] = None
-    st.rerun()
+        st.download_button(
+            label="Download Report as PDF",
+            data=buffer,
+            file_name="loan_prediction_report.pdf",
+            mime="application/pdf"
+        )
+    except Exception as e:
+        st.error(f"Prediction failed: {e}")
 
 # Footer
 st.markdown(
@@ -431,3 +238,173 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# --- Chatbot in Sidebar ---
+st.sidebar.markdown("## 🤖 AI Financial Chatbot with EMI Calculator")
+
+# --- Initialize Chat History & Session Variables ---
+if "chat_messages" not in st.session_state:
+    st.session_state["chat_messages"] = [
+        {"role": "bot", "content": "👋 Hello! You can speak or type your question.\n\n**📌 Categories:**\n- Loan Help 🏦\n- EMI Calculator 💰\n- Credit Score Info 🔍\n- Investments 📊\n- Business Loans 💼\n- Student Loans 🎓"}
+    ]
+if "last_topic" not in st.session_state:
+    st.session_state["last_topic"] = None  # Track conversation topic
+if "emi_active" not in st.session_state:
+    st.session_state["emi_active"] = False  # Track EMI calculator trigger
+if "user_input" not in st.session_state:
+    st.session_state["user_input"] = ""  # Track the input field value
+
+# --- Smarter Chatbot Response System ---
+def chatbot_response(user_message):
+    user_message = user_message.lower().strip()
+
+    # Standard Greetings
+    greetings = ["hello", "hi", "hey", "how are you"]
+    if user_message in greetings:
+        return "👋 Hello! How can I assist you today? You can ask about loans, EMI, or investments!"
+
+    # Loan Categories
+    loan_topics = ["loan help", "loan", "finance", "borrow money"]
+    if any(topic in user_message for topic in loan_topics):
+        st.session_state["last_topic"] = "loan"
+        return "📌 **Loan Help:**\n- **Personal Loans** 🏦\n- **Business Loans** 💼\n- **Student Loans** 🎓\n- **Home & Car Loans** 🚗🏡\n\n💡 Ask about a specific loan type for details!"
+
+    # Specific Loans with More Details
+    loan_details = {
+        "personal loan": """🏦 **Personal Loan Details:**
+        - **Loan Amount:** ₹50,000 - ₹25 Lakh
+        - **Interest Rate:** 10-15% per annum
+        - **Collateral:** ❌ Not Required
+        - **Repayment Tenure:** 1-5 years
+        - **Processing Time:** ✅ 24-48 hours for approval
+        - **Eligibility:**
+        - CIBIL Score: **700+**
+        - Monthly Income: **₹25,000+**
+        - Age: **21-60 years**
+        - **Best for:** Medical emergencies, vacations, home renovations, and debt consolidation.
+        - 💡 **Tip:** Lower CIBIL scores may result in higher interest rates.""",
+
+        "business loan": """💼 **Business Loan Guide:**
+        - **Loan Amount:** ₹5 Lakh - ₹5 Crore (Varies by bank)
+        - **Interest Rate:** 10-18% per annum
+        - **Collateral:** ✅ Required for large loans (property, assets)
+        - **Repayment Tenure:** 3-10 years
+        - **Processing Time:** 📅 7-15 days
+        - **Eligibility:**
+        - Business Age: **2+ years**
+        - Annual Revenue: **₹10 Lakh+**
+        - Good credit history
+        - **Best for:** Expanding operations, working capital, asset purchase, startup funding.
+        - 💡 **Tip:** Government-backed MSME loans offer lower interest rates for small businesses.""",
+        
+        "student loan": """🎓 **Student Loan Guide:**
+        - **Loan Amount:** ₹1 Lakh - ₹50 Lakh
+        - **Interest Rate:** 5-8% per annum (Lower for government schemes)
+        - **Collateral:** ✅ Required for loans above ₹7.5 Lakh
+        - **Repayment Tenure:** 10-15 years (Starts after graduation)
+        - **Processing Time:** 📅 5-10 days
+        - **Eligibility:**
+        - Must be admitted to a recognized institution (India or abroad)
+        - Co-applicant (Parent/Guardian) with stable income
+        - CIBIL Score: **650+**
+        - **Best for:** Tuition, living expenses, and study abroad costs.
+        - 💡 **Tip:** Some banks offer **0% interest grace periods** during the study period.""",
+        
+        "home loan": """🏡 **Home Loan Details:**
+        - **Loan Amount:** ₹10 Lakh - ₹1 Crore
+        - **Interest Rate:** 7-9% per annum (Floating & Fixed rates available)
+        - **Collateral:** ✅ Property being purchased serves as collateral
+        - **Repayment Tenure:** 10-30 years
+        - **Processing Time:** 📅 10-15 days
+        - **Eligibility:**
+        - Stable income & employment history
+        - CIBIL Score: **750+**
+        - Down Payment: **20-25% of the property value**
+        - **Best for:** Buying, constructing, or renovating a house.
+        - 💡 **Tip:** First-time home buyers can get tax benefits under **Section 80C & 24(b).**""",
+        
+        "car loan": """🚗 **Car Loan Details:**
+        - **Loan Amount:** ₹1 Lakh - ₹50 Lakh
+        - **Interest Rate:** 8-12% per annum
+        - **Collateral:** ❌ Not Required (Car is the collateral)
+        - **Repayment Tenure:** 1-7 years
+        - **Processing Time:** ✅ Quick disbursal (Same-day in some banks)
+        - **Eligibility:**
+        - CIBIL Score: **700+**
+        - Monthly Income: **₹20,000+**
+        - Age: **21-65 years**
+        - **Best for:** New or used car purchase.
+        - 💡 **Tip:** Special **low-interest loans available for Electric Vehicles (EVs).**"""
+        
+    }
+
+
+    # Check for a specific loan type
+    for key, response in loan_details.items():
+        if key in user_message:
+            st.session_state["last_topic"] = key  # Store last topic
+            return response
+
+    # Follow-Up Questions Based on Last Topic
+    if st.session_state["last_topic"]:
+        if "tell me more" in user_message or "more details" in user_message:
+            # Provide additional details based on the last topic
+            if st.session_state["last_topic"] == "personal loan":
+                return "🏦 **More on Personal Loans:**\n- Great for emergencies, vacations, or home improvements.\n- Processing time: **24-48 hours** in most banks.\n- No specific usage restrictions."
+            elif st.session_state["last_topic"] == "business loan":
+                return "💼 **More on Business Loans:**\n- Best for expansion, working capital, and asset purchase.\n- Some banks offer **low-interest startup loans**."
+            elif st.session_state["last_topic"] == "student loan":
+                return "🎓 **More on Student Loans:**\n- Government banks offer **subsidized loans** for students from low-income families.\n- Some banks provide a **grace period** after graduation."
+            elif st.session_state["last_topic"] == "home loan":
+                return "🏡 **More on Home Loans:**\n- You can apply for **tax benefits** under Section 80C.\n- Banks often offer **fixed or floating interest rates**."
+            elif st.session_state["last_topic"] == "car loan":
+                return "🚗 **More on Car Loans:**\n- Special interest rates available for **electric vehicles (EVs)**.\n- Some banks offer **100% on-road financing** for new cars."
+
+    # EMI Calculator Activation
+    emi_keywords = ["emi", "monthly payment", "calculate emi"]
+    if any(keyword in user_message for keyword in emi_keywords):
+        st.session_state["emi_active"] = True
+        return "📊 **EMI Calculator Activated!** Enter loan details below."
+
+    # Credit Score
+    if "credit score" in user_message or "cibil" in user_message:
+        return "🔍 **Credit Score Guide:**\n- **750+** = Excellent ✅\n- **650-749** = Good 👍\n- **550-649** = Fair ⚠️\n- **Below 550** = Poor ❌\n\nHigher scores = Better loan rates!"
+
+    # Default Response
+    return "🤖 Hmm, I don't have an exact answer for that. Try asking about loans, EMI, or investments!"
+
+# --- Display Chat History ---
+st.sidebar.markdown("### 💬 Chat History:")
+for message in st.session_state["chat_messages"]:
+    role = "👤 You" if message["role"] == "user" else "🤖 Bot"
+    st.sidebar.markdown(f"**{role}:** {message['content']}")
+
+# --- Text Input Field for Manual Chat ---
+user_input = st.sidebar.text_input("💬 Type your question:", value=st.session_state["user_input"], key="chat_input")
+
+# --- Process User Input ---
+if st.sidebar.button("🚀 Send"):
+    if user_input.strip():
+        # Add user input to chat history
+        st.session_state["chat_messages"].append({"role": "user", "content": user_input})
+        
+        # Get bot response
+        bot_reply = chatbot_response(user_input)
+        st.session_state["chat_messages"].append({"role": "bot", "content": bot_reply})
+        
+        # Clear input field by resetting session state
+        st.session_state["user_input"] = ""  
+        
+        # Refresh UI to show cleared input field
+        st.rerun()
+
+# --- Display EMI Calculator if Triggered ---
+if st.session_state["emi_active"]:
+    loan_amount = st.sidebar.number_input("Loan Amount (₹)", min_value=1000, value=500000, step=1000)
+    interest_rate = st.sidebar.number_input("Interest Rate (%)", min_value=1.0, value=10.0, step=0.1)
+    tenure = st.sidebar.number_input("Tenure (Years)", min_value=1, value=5, step=1)
+    
+    if st.sidebar.button("📊 Calculate EMI"):
+        emi_result = round((loan_amount * (interest_rate / 12 / 100) * (1 + (interest_rate / 12 / 100)) ** (tenure * 12)) / ((1 + (interest_rate / 12 / 100)) ** (tenure * 12) - 1), 2)
+        st.sidebar.success(f"📌 Your Monthly EMI: ₹{emi_result:,}")
+        st.session_state["emi_active"] = False  # Reset EMI trigger
