@@ -183,9 +183,12 @@ elif step == "Final Decision":
 
         # Generate PDF Report
         pdf = FPDF()
-        pdf.set_doc_option('core_fonts_encoding', 'utf-8')
+        pdf.set_doc_option('core_fonts_encoding', 'utf-8')  # Enable UTF-8 encoding
         pdf.add_page()
-        pdf.set_font("Arial", size=12)  # Use a standard font like Arial
+
+        # Add a Unicode-compatible font (e.g., DejaVuSans)
+        pdf.add_font('DejaVuSans', '', 'DejaVuSans.ttf', uni=True)
+        pdf.set_font('DejaVuSans', '', 12)
 
         # Title
         pdf.cell(200, 10, txt="Loan Approval Prediction Report", ln=True, align="C")
@@ -201,11 +204,11 @@ elif step == "Final Decision":
         # Loan Details
         pdf.cell(200, 10, txt="Loan Details:", ln=True)
         pdf.cell(200, 10, txt=f"CIBIL Score: {loan_details.get('cibil_score', 'N/A')}", ln=True)
-        pdf.cell(200, 10, txt=f"Loan Amount: ₹{loan_details.get('loan_amount', 'N/A')}", ln=True)
+        pdf.cell(200, 10, txt=loan_amount_text.encode('latin-1', 'replace').decode('latin-1'), ln=True)
         pdf.cell(200, 10, txt=f"Loan Term: {loan_details.get('loan_term', 'N/A')} months", ln=True)
         emi_value = loan_details.get("emi", None)
         if emi_value is not None:
-            pdf.cell(200, 10, txt=f"Estimated EMI: ₹{emi_value:,.2f}", ln=True)
+            pdf.cell(200, 10, txt=emi_text.encode('latin-1', 'replace').decode('latin-1'), ln=True)
         else:
             pdf.cell(200, 10, txt="Estimated EMI: Not Calculated", ln=True)
         pdf.ln(10)
