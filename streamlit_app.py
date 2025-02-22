@@ -183,14 +183,10 @@ elif step == "Final Decision":
 
         # Generate PDF Report
         pdf = FPDF()
-        pdf.set_doc_option('core_fonts_encoding', 'utf-8')  # Enable UTF-8 encoding
         pdf.add_page()
+        pdf.add_font('FreeSerif', '', 'FreeSerif.ttf', uni=True)
+        pdf.set_font("FreeSerif", size=12)
 
-        # Add a Unicode-compatible font (e.g., DejaVuSans)
-        pdf.add_font('DejaVuSans', '', 'DejaVuSans.ttf', uni=True)
-        pdf.set_font('DejaVuSans', '', 12)
-
-        # Title
         pdf.cell(200, 10, txt="Loan Approval Prediction Report", ln=True, align="C")
         pdf.ln(10)
 
@@ -232,6 +228,7 @@ elif step == "Final Decision":
         )
     except Exception as e:
         st.error(f"Prediction failed: {e}")
+
 # Footer
 st.markdown(
     """
