@@ -141,10 +141,10 @@ elif step == "Upload Documents":
     st.session_state["loan_details"]["id_proof"] = st.file_uploader("Upload ID Proof")
     st.session_state["loan_details"]["address_proof"] = st.file_uploader("Upload Address Proof")
 
-# Step 4: Final Decision
-elif step == "Final Decision":
-    st.markdown("### Step 4: Final Decision")
-    loan_details = st.session_state["loan_details"]
+    # Step 4: Final Decision
+    elif step == "Final Decision":
+        st.markdown("### Step 4: Final Decision")
+        loan_details = st.session_state["loan_details"]
 
     # Prepare input data for prediction
     input_data = pd.DataFrame({
