@@ -204,11 +204,11 @@ elif step == "Final Decision":
         # Loan Details
         pdf.cell(200, 10, txt="Loan Details:", ln=True)
         pdf.cell(200, 10, txt=f"CIBIL Score: {loan_details.get('cibil_score', 'N/A')}", ln=True)
-        pdf.cell(200, 10, txt=loan_amount_text.encode('latin-1', 'replace').decode('latin-1'), ln=True)
+        pdf.cell(200, 10, txt=f"Loan Amount: ₹{loan_details.get('loan_amount', 'N/A')}", ln=True)
         pdf.cell(200, 10, txt=f"Loan Term: {loan_details.get('loan_term', 'N/A')} months", ln=True)
         emi_value = loan_details.get("emi", None)
         if emi_value is not None:
-            pdf.cell(200, 10, txt=emi_text.encode('latin-1', 'replace').decode('latin-1'), ln=True)
+            pdf.cell(200, 10, txt=f"Estimated EMI: ₹{emi_value:,.2f}", ln=True)
         else:
             pdf.cell(200, 10, txt="Estimated EMI: Not Calculated", ln=True)
         pdf.ln(10)
