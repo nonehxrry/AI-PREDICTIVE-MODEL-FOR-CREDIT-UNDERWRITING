@@ -183,6 +183,7 @@ elif step == "Final Decision":
 
         # Generate PDF Report
         pdf = FPDF()
+        pdf.set_doc_option('core_fonts_encoding', 'utf-8')
         pdf.add_page()
         pdf.set_font("Arial", size=12)  # Use a standard font like Arial
 
