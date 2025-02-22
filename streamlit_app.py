@@ -181,51 +181,51 @@ elif step == "Final Decision":
             st.markdown("### Loan Approved ✅")
             st.success(f"Approval Probability: {prediction_proba[0][0]:.2f}")
 
-        # Generate PDF Report
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.add_font('FreeSerif', '', 'FreeSerif.ttf', uni=True)
-        pdf.set_font("FreeSerif", size=12)
-
-        pdf.cell(200, 10, txt="Loan Approval Prediction Report", ln=True, align="C")
-        pdf.ln(10)
-
-        # Personal Information
-        pdf.cell(200, 10, txt="Personal Information:", ln=True)
-        pdf.cell(200, 10, txt=f"Full Name: {loan_details.get('full_name', 'N/A')}", ln=True)
-        pdf.cell(200, 10, txt=f"Email: {loan_details.get('email', 'N/A')}", ln=True)
-        pdf.cell(200, 10, txt=f"Phone: {loan_details.get('phone', 'N/A')}", ln=True)
-        pdf.ln(10)
-
-        # Loan Details
-        pdf.cell(200, 10, txt="Loan Details:", ln=True)
-        pdf.cell(200, 10, txt=f"CIBIL Score: {loan_details.get('cibil_score', 'N/A')}", ln=True)
-        pdf.cell(200, 10, txt=f"Loan Amount: ₹{loan_details.get('loan_amount', 'N/A')}", ln=True)
-        pdf.cell(200, 10, txt=f"Loan Term: {loan_details.get('loan_term', 'N/A')} months", ln=True)
-        emi_value = loan_details.get("emi", None)
-        if emi_value is not None:
-            pdf.cell(200, 10, txt=f"Estimated EMI: ₹{emi_value:,.2f}", ln=True)
-        else:
-            pdf.cell(200, 10, txt="Estimated EMI: Not Calculated", ln=True)
-        pdf.ln(10)
-
-        # Prediction Results
-        pdf.cell(200, 10, txt="Prediction Results:", ln=True)
-        pdf.cell(200, 10, txt=f"Prediction: {'Approved' if prediction[0] == 0 else 'Rejected'}", ln=True)
-        pdf.cell(200, 10, txt=f"Approval Probability: {prediction_proba[0][0]:.2f}", ln=True)
-        pdf.cell(200, 10, txt=f"Rejection Probability: {prediction_proba[0][1]:.2f}", ln=True)
-
-        # Save PDF to buffer
-        buffer = BytesIO()
-        pdf.output(buffer, "S")
-        buffer.seek(0)
-
-        st.download_button(
-            label="Download Report as PDF",
-            data=buffer,
-            file_name="loan_prediction_report.pdf",
-            mime="application/pdf"
-        )
+    # Generate PDF Report
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)  # Use a standard font like Arial
+    
+    # Title
+    pdf.cell(200, 10, txt="Loan Approval Prediction Report", ln=True, align="C")
+    pdf.ln(10)
+    
+    # Personal Information
+    pdf.cell(200, 10, txt="Personal Information:", ln=True)
+    pdf.cell(200, 10, txt=f"Full Name: {loan_details.get('full_name', 'N/A')}", ln=True)
+    pdf.cell(200, 10, txt=f"Email: {loan_details.get('email', 'N/A')}", ln=True)
+    pdf.cell(200, 10, txt=f"Phone: {loan_details.get('phone', 'N/A')}", ln=True)
+    pdf.ln(10)
+    
+    # Loan Details
+    pdf.cell(200, 10, txt="Loan Details:", ln=True)
+    pdf.cell(200, 10, txt=f"CIBIL Score: {loan_details.get('cibil_score', 'N/A')}", ln=True)
+    pdf.cell(200, 10, txt=f"Loan Amount: ₹{loan_details.get('loan_amount', 'N/A')}", ln=True)
+    pdf.cell(200, 10, txt=f"Loan Term: {loan_details.get('loan_term', 'N/A')} months", ln=True)
+    emi_value = loan_details.get("emi", None)
+    if emi_value is not None:
+        pdf.cell(200, 10, txt=f"Estimated EMI: ₹{emi_value:,.2f}", ln=True)
+    else:
+        pdf.cell(200, 10, txt="Estimated EMI: Not Calculated", ln=True)
+    pdf.ln(10)
+    
+    # Prediction Results
+    pdf.cell(200, 10, txt="Prediction Results:", ln=True)
+    pdf.cell(200, 10, txt=f"Prediction: {'Approved' if prediction[0] == 0 else 'Rejected'}", ln=True)
+    pdf.cell(200, 10, txt=f"Approval Probability: {prediction_proba[0][0]:.2f}", ln=True)
+    pdf.cell(200, 10, txt=f"Rejection Probability: {prediction_proba[0][1]:.2f}", ln=True)
+    
+    # Save PDF to buffer
+    buffer = BytesIO()
+    pdf.output(buffer, "S")
+    buffer.seek(0)
+    
+    st.download_button(
+        label="Download Report as PDF",
+        data=buffer,
+        file_name="loan_prediction_report.pdf",
+        mime="application/pdf"
+    )
     except Exception as e:
         st.error(f"Prediction failed: {e}")
 
