@@ -184,8 +184,7 @@ elif step == "Final Decision":
         # Generate PDF Report
         pdf = FPDF()
         pdf.add_page()
-        pdf.add_font('FreeSerif', '', 'FreeSerif.ttf', uni=True)
-        pdf.set_font("FreeSerif", size=12)
+        pdf.set_font("Arial", size=12)
 
         pdf.cell(200, 10, txt="Loan Approval Prediction Report", ln=True, align="C")
         pdf.ln(10)
@@ -217,7 +216,7 @@ elif step == "Final Decision":
 
         # Save PDF to buffer
         buffer = BytesIO()
-        pdf.output(buffer, "S")
+        pdf.output(buffer)
         buffer.seek(0)
 
         st.download_button(
@@ -335,9 +334,7 @@ def chatbot_response(user_message):
         - Age: **21-65 years**
         - **Best for:** New or used car purchase.
         - 💡 **Tip:** Special **low-interest loans available for Electric Vehicles (EVs).**"""
-        
     }
-
 
     # Check for a specific loan type
     for key, response in loan_details.items():
