@@ -130,7 +130,7 @@ elif step == "Loan Details":
     if loan_amount > 0 and tenure_months > 0:
         emi = (loan_amount * monthly_rate * (1 + monthly_rate) ** tenure_months) / ((1 + monthly_rate) ** tenure_months - 1)
         st.session_state["loan_details"]["emi"] = emi
-        st.write(f"**Estimated EMI:** ₹{emi:,.2f}")
+        st.write(f"**Estimated EMI:** Rs. {emi:,.2f}")  # Replaced ₹ with Rs.
     else:
         st.session_state["loan_details"]["emi"] = None
         st.write("Please provide valid loan amount and term.")
@@ -184,10 +184,7 @@ elif step == "Final Decision":
         # Generate PDF Report
         pdf = FPDF()
         pdf.add_page()
-
-        # Add a Unicode-compatible font (e.g., DejaVuSans)
-        pdf.add_font('DejaVuSans', '', 'DejaVuSans.ttf', uni=True)
-        pdf.set_font("DejaVuSans", size=12)
+        pdf.set_font("Arial", size=12)
 
         # Title
         pdf.cell(200, 10, txt="Loan Approval Prediction Report", ln=True, align="C")
@@ -203,11 +200,11 @@ elif step == "Final Decision":
         # Loan Details
         pdf.cell(200, 10, txt="Loan Details:", ln=True)
         pdf.cell(200, 10, txt=f"CIBIL Score: {loan_details.get('cibil_score', 'N/A')}", ln=True)
-        pdf.cell(200, 10, txt=f"Loan Amount: ₹{loan_details.get('loan_amount', 'N/A')}", ln=True)
+        pdf.cell(200, 10, txt=f"Loan Amount: Rs. {loan_details.get('loan_amount', 'N/A')}", ln=True)  # Replaced ₹ with Rs.
         pdf.cell(200, 10, txt=f"Loan Term: {loan_details.get('loan_term', 'N/A')} months", ln=True)
         emi_value = loan_details.get("emi", None)
         if emi_value is not None:
-            pdf.cell(200, 10, txt=f"Estimated EMI: ₹{emi_value:,.2f}", ln=True)
+            pdf.cell(200, 10, txt=f"Estimated EMI: Rs. {emi_value:,.2f}", ln=True)  # Replaced ₹ with Rs.
         else:
             pdf.cell(200, 10, txt="Estimated EMI: Not Calculated", ln=True)
         pdf.ln(10)
