@@ -7,3 +7,4 @@ joblib
 fpdf2
 fpdf
 transformers
+langdetect
