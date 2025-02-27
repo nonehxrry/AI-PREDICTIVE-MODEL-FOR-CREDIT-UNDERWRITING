@@ -236,7 +236,7 @@ elif step == "Final Decision":
 st.markdown(
     """
     <footer>
-        <p>© 2025 AI Predictive Methods for Credit Underwriting. All rights reserved.</p>
+        <p>© Harjit Singh Bhadauriya - 2025 AI Predictive Methods for Credit Underwriting. All rights reserved.</p>
     </footer>
     """,
     unsafe_allow_html=True
