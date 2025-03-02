@@ -9,6 +9,7 @@ from sklearn.metrics import accuracy_score, classification_report
 file_path = 'credit_underwriting1.csv'  # Update the file path as needed
 data = pd.read_csv(file_path)
 
+s
 # Preprocessing
 # Encode categorical variables
 categorical_columns = ['gender', 'marital_status', 'employee_status', 'residence_type', 'loan_purpose']
