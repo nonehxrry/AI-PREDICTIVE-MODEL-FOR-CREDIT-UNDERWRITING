@@ -12,7 +12,7 @@ import os
 # Set page configuration
 st.set_page_config(
     page_title="AI Predictive Methods for Credit Underwriting",
-    page_icon="💸",
+    page_icon="",
     layout="wide"
 )
 
