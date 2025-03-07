@@ -1,4 +1,4 @@
-import streamlit as
+import streamlit as st
 import pandas as pd
 import joblib
 from io import BytesIO
