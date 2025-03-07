@@ -13,7 +13,7 @@ import os
 st.set_page_config(
     page_title="AI Predictive Methods for Credit Underwriting",
     page_icon="💸",
-    layout="wide"
+    layout="wide
 )
 
 # Custom CSS for styling
