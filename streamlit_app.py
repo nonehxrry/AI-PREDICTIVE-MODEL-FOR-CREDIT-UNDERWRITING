@@ -18,7 +18,7 @@ st.set_page_config(
 
 # Custom CSS for styling
 st.markdown(
-    
+    """
     <style>
         body {
             background: linear-gradient(to right, #ffffff, #e6f7ff);
