@@ -1,4 +1,4 @@
-my name is Harjitimport streamlit as st
+my name is Harjit Singhimport streamlit as st
 import pandas as pd
 import joblib
 from io import BytesIO
