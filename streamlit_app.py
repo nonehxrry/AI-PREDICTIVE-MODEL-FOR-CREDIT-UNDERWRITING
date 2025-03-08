@@ -1,4 +1,4 @@
-my name #I Love My India
+my #I Love My India
 import streamlit as st
 import pandas as pd
 import joblib
