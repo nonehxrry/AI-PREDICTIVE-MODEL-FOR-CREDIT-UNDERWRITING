@@ -1,5 +1,5 @@
 #I Love My India
-# Hello My Name is Harjit Singh Bhadauriya
+# Hello My Name is Harjit Singh Bhadauriya.
 import streamlit as st
 import pandas as pd
 import joblib
