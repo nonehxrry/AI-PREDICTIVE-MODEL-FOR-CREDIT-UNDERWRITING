@@ -11,7 +11,7 @@ data = pd.read_csv(file_path)
 
 s
 #Preprocessing
-# Encode categorical variables
+#Encode categorical variables
 categorical_columns = ['gender', 'marital_status', 'employee_status', 'residence_type', 'loan_purpose']
 label_encoders = {}
 for col in categorical_columns:
