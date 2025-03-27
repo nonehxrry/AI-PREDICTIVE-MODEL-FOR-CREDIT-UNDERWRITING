@@ -1,4 +1,4 @@
-import pandas as pd
+mport pandas as pd
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingClassifier
