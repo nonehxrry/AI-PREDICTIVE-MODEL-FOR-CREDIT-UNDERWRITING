@@ -1,6 +1,6 @@
 #I Love My India
 #Harjit
-#Hell
+#Hel
 import streamlit as st
 import pandas as pd
 import joblib
