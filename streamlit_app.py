@@ -111,6 +111,7 @@ if step == "Personal Information":
     st.session_state["loan_details"]["email"] = st.text_input("Email Address", st.session_state["loan_details"]["email"])
     st.session_state["loan_details"]["phone"] = st.text_input("Phone Number", st.session_state["loan_details"]["phone"])
 
+
 # Step 2: Loan Details
 elif step == "Loan Details":
     st.markdown("### Step 2: Loan Details")
