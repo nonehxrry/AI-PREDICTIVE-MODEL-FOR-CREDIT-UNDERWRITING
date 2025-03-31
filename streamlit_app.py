@@ -97,6 +97,7 @@ if "loan_details" not in st.session_state:
         "address_proof": None
     }
 
+
 # Navigation menu
 step = st.radio(
     "Navigate through the steps:",
