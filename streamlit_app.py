@@ -64,6 +64,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+
 # Load the trained model
 model_path = 'best_features_model.pkl'
 try:
