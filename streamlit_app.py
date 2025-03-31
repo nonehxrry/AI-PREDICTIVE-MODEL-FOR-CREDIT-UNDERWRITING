@@ -10,7 +10,6 @@ from langdetect import detect
 import math
 import os
 
-
 # Set page configuration
 st.set_page_config(
     page_title="AI Predictive Methods for Credit Underwriting",
