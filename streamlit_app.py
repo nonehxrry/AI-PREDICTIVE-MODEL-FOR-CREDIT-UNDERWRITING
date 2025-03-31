@@ -74,6 +74,7 @@ except FileNotFoundError:
     st.error(f"Model file not found: {model_path}")
     st.stop()
 
+
 # Initialize session state
 if "loan_details" not in st.session_state:
     st.session_state["loan_details"] = {
