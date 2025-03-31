@@ -298,6 +298,7 @@ def chatbot_response(user_message):
         - **Best for:** Medical emergencies, vacations, home renovations, and debt consolidation.
         - 💡 **Tip:** Lower CIBIL scores may result in higher interest rates.""",
 
+        
         "business loan": """💼 **Business Loan Guide:**
         - **Loan Amount:** ₹5 Lakh - ₹5 Crore (Varies by bank)
         - **Interest Rate:** 10-18% per annum
