@@ -200,6 +200,7 @@ elif step == "Final Decision":
         pdf.set_font("Arial", size=12)  # Reset font to normal
         pdf.ln(10)
 
+        
         # Personal Information
         pdf.cell(200, 10, txt="Personal Information:", ln=True)
         pdf.cell(200, 10, txt=f"Full Name: {loan_details.get('full_name', 'N/A')}", ln=True)
