@@ -280,6 +280,7 @@ def chatbot_response(user_message):
         st.session_state["last_topic"] = "loan"
         return "📌 **Loan Help:**\n- **Personal Loans** 🏦\n- **Business Loans** 💼\n- **Student Loans** 🎓\n- **Home & Car Loans** 🚗🏡\n\n💡 Ask about a specific loan type for details!"
 
+    
     # Specific Loans with More Details
     loan_details = {
         "personal loan": """🏦 **Personal Loan Details:**
