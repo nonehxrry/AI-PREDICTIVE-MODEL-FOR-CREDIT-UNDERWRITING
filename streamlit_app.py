@@ -207,6 +207,7 @@ elif step == "Final Decision":
         pdf.cell(200, 10, txt=f"Phone: {loan_details.get('phone', 'N/A')}", ln=True)
         pdf.ln(10)
 
+        
         # Loan Details
         pdf.cell(200, 10, txt="Loan Details:", ln=True)
         pdf.cell(200, 10, txt=f"CIBIL Score: {loan_details.get('cibil_score', 'N/A')}", ln=True)
