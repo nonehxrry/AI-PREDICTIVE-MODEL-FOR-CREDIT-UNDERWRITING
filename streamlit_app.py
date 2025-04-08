@@ -1,4 +1,4 @@
-import numpy
+import numpy as
 
 
 #I Love My India
