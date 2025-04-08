@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as 
 #I Love My India
 #Harjit
 import streamlit as st
