@@ -54,6 +54,11 @@ st.markdown(
             vertical-align: middle;
             margin-left: 10px;
         }
+        .nav-button-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
         footer {
             text-align: center;
             margin-top: 50px;
@@ -138,12 +143,6 @@ def clear_completion(step_index):
     st.session_state["step_complete"][step_index] = False
     update_progress_bar()
 
-col_nav1, col_nav2 = st.sidebar.columns(2)
-if col_nav1.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0):
-    pass
-if col_nav2.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1):
-    pass
-
 current_step_index = st.session_state["current_step"]
 current_step_name = steps[current_step_index]
 st.markdown(f"### {current_step_name} {'✅' if st.session_state['step_complete'][current_step_index] else ''}")
@@ -156,6 +155,10 @@ if current_step_name == "Personal Information":
         st.session_state["loan_details"]["phone"] = st.text_input("Phone Number", st.session_state["loan_details"]["phone"], key="phone")
         if st.button("Mark as Complete", key="complete_personal"):
             mark_complete(0)
+        st.markdown("<div class='nav-button-container'>", unsafe_allow_html=True)
+        st.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
+        st.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
+        st.markdown("</div>", unsafe_allow_html=True)
 elif current_step_name == "Loan Details":
     with st.container(border=True):
         st.markdown("#### Step 2: Loan Details")
@@ -188,6 +191,10 @@ elif current_step_name == "Loan Details":
 
         if st.button("Mark as Complete", key="complete_loan_details"):
             mark_complete(1)
+        st.markdown("<div class='nav-button-container'>", unsafe_allow_html=True)
+        st.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
+        st.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
+        st.markdown("</div>", unsafe_allow_html=True)
 elif current_step_name == "Upload Documents":
     with st.container(border=True):
         st.markdown("#### Step 3: Upload Documents")
@@ -195,6 +202,10 @@ elif current_step_name == "Upload Documents":
         st.session_state["loan_details"]["address_proof"] = st.file_uploader("Upload Address Proof", key="address_proof")
         if st.button("Mark as Complete", key="complete_upload"):
             mark_complete(2)
+        st.markdown("<div class='nav-button-container'>", unsafe_allow_html=True)
+        st.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
+        st.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
+        st.markdown("</div>", unsafe_allow_html=True)
 elif current_step_name == "Final Decision":
     with st.container(border=True):
         st.markdown("#### Step 4: Final Decision")
@@ -287,6 +298,10 @@ elif current_step_name == "Final Decision":
             )
         except Exception as e:
             st.error(f"Prediction failed: {e}")
+        st.markdown("<div class='nav-button-container'>", unsafe_allow_html=True)
+        st.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
+        st.button("Next", on_click=next_step, disabled=True) # Disable next on the last step
+        st.markdown("</div>", unsafe_allow_html=True)
         if st.button("Submit Application"):
             st.success("Loan application submitted successfully!") # Added a submit message
             mark_complete(3)
