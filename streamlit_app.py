@@ -57,7 +57,7 @@ st.markdown(
         .nav-button-container {
             margin-top: 20px;
             display: flex;
-            justify-content: space-between;
+            gap: 20px; /* Adjust spacing between buttons */
         }
         footer {
             text-align: center;
@@ -156,8 +156,9 @@ if current_step_name == "Personal Information":
         if st.button("Mark as Complete", key="complete_personal"):
             mark_complete(0)
         st.markdown("<div class='nav-button-container'>", unsafe_allow_html=True)
-        st.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
-        st.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
+        col_prev, col_next = st.columns(2)
+        col_prev.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
+        col_next.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
         st.markdown("</div>", unsafe_allow_html=True)
 elif current_step_name == "Loan Details":
     with st.container(border=True):
@@ -192,8 +193,9 @@ elif current_step_name == "Loan Details":
         if st.button("Mark as Complete", key="complete_loan_details"):
             mark_complete(1)
         st.markdown("<div class='nav-button-container'>", unsafe_allow_html=True)
-        st.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
-        st.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
+        col_prev, col_next = st.columns(2)
+        col_prev.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
+        col_next.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
         st.markdown("</div>", unsafe_allow_html=True)
 elif current_step_name == "Upload Documents":
     with st.container(border=True):
@@ -203,8 +205,9 @@ elif current_step_name == "Upload Documents":
         if st.button("Mark as Complete", key="complete_upload"):
             mark_complete(2)
         st.markdown("<div class='nav-button-container'>", unsafe_allow_html=True)
-        st.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
-        st.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
+        col_prev, col_next = st.columns(2)
+        col_prev.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
+        col_next.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
         st.markdown("</div>", unsafe_allow_html=True)
 elif current_step_name == "Final Decision":
     with st.container(border=True):
@@ -262,6 +265,44 @@ elif current_step_name == "Final Decision":
             pdf.cell(200, 10, txt="Personal Information:", ln=True)
             pdf.cell(200, 10, txt=f"Full Name: {loan_details.get('full_name', 'N/A')}", ln=True)
             pdf.cell(200, 10, txt=f"Email: {loan_details.get('email', 'N/A')}", ln=True)
+            pdf.cell(200, 10, txt(f"Phone: {loan_details.get('phone', 'N/A')}", ln=True)
+            pdf.ln(10)
+
+
+            # Loan Details
+            pdf.cell(200, 10, txt="Loan Details:", ln=True)
+            pdf.cell(200, 10, txt=f"CIBIL Score: {loan_details.get('cibil_score', 'N/A')}", ln=True)
+            pdf.cell(200, 10, txt=f"Loan Amount: Rs. {loan_details.get('loan_amount', 'N/A')}", ln=True)  # Replaced ₹ with Rs.
+            pdf.cell(200, 10, txt=f"Loan Term: {loan_details.get('loan_term', 'N/A')} months", ln=True)
+            emi_value = loan_details.get("emi", None)
+            if emi_value is not None:
+                pdf.cell(200, 10, txt=f"Estimated EMI: Rs. {emi_value:,.2f}", ln=True)  # Replaced ₹ with Rs.
+            else:
+                pdf.cell(200, 10, txt="Estimated EMI: Not Calculated", ln=True)
+            pdf.ln(10)
+
+            # Prediction Results
+            pdf.cell(200, 10, txt="Prediction Results:", ln=True)
+            pdf.cell(200, 10, txt=f"Prediction: {'Approved' if prediction[0] == 0 else 'Rejected'}", ln=True)
+            pdf.cell(200, 10, txt=f"Approval Probability: {prediction_proba[0][0]:.2f}", ln=True)
+            pdf.cell(200, 10, txt=f"Rejection Probability: {prediction_proba[0][1]:.2f}", ln=True)
+
+            # Save PDF to buffer
+            buffer = BytesIO()
+            pdf.add_page()
+            pdf.set_font("Arial", size=12)
+
+            # Title
+            pdf.set_font("Arial", style="BU", size=12)  # Set font to bold and underline
+            pdf.cell(200, 10, txt="Loan Approval Prediction Report", ln=True, align="C")
+            pdf.set_font("Arial", size=12)  # Reset font to normal
+            pdf.ln(10)
+
+
+            # Personal Information
+            pdf.cell(200, 10, txt="Personal Information:", ln=True)
+            pdf.cell(200, 10, txt=f"Full Name: {loan_details.get('full_name', 'N/A')}", ln=True)
+            pdf.cell(200, 10, txt=f"Email: {loan_details.get('email', 'N/A')}", ln=True)
             pdf.cell(200, 10, txt=f"Phone: {loan_details.get('phone', 'N/A')}", ln=True)
             pdf.ln(10)
 
@@ -286,7 +327,21 @@ elif current_step_name == "Final Decision":
 
             # Save PDF to buffer
             buffer = BytesIO()
-            pdf_bytes = pdf.output(dest="S").encode("latin1")  # Encode the PDF content
+            if st.session_state["loan_details"]["id_proof"] is not None:
+                pdf.add_page()
+                pdf.set_font("Arial", size=12)
+                pdf.cell(200, 10, txt="Uploaded ID Proof:", ln=True)
+                # Directly use the bytearray content
+                pdf.image(st.session_state["loan_details"]["id_proof"], w=180)
+
+            if st.session_state["loan_details"]["address_proof"] is not None:
+                pdf.add_page()
+                pdf.set_font("Arial", size=12)
+                pdf.cell(200, 10, txt="Uploaded Address Proof:", ln=True)
+                # Directly use the bytearray content
+                pdf.image(st.session_state["loan_details"]["address_proof"], w=180)
+
+            pdf_bytes = pdf.output(dest="S").encode("latin1") # Keep this encoding
             buffer.write(pdf_bytes)
             buffer.seek(0)
 
@@ -299,8 +354,9 @@ elif current_step_name == "Final Decision":
         except Exception as e:
             st.error(f"Prediction failed: {e}")
         st.markdown("<div class='nav-button-container'>", unsafe_allow_html=True)
-        st.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
-        st.button("Next", on_click=next_step, disabled=True) # Disable next on the last step
+        col_prev, col_next = st.columns(2)
+        col_prev.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
+        col_next.button("Next", on_click=next_step, disabled=True) # Disable next on the last step
         st.markdown("</div>", unsafe_allow_html=True)
         if st.button("Submit Application"):
             st.success("Loan application submitted successfully!") # Added a submit message
@@ -478,7 +534,7 @@ if st.sidebar.button("🚀 Send"):
 # --- Display EMI Calculator if Triggered ---
 if st.session_state["emi_active"]:
     loan_amount = st.sidebar.number_input("Loan Amount (₹)", min_value=1000, value=500000, step=1000)
-    interest_rate = st.sidebar.number_input("Interest Rate (%)", min_value=1.0, value=10.0, step=0.1)
+    interest_rate = st.sidebar.number_input("Interest Rate (%)", min_value=1.0, value=10.0, step= 0.1)
     tenure = st.sidebar.number_input("Tenure (Years)", min_value=1, value=5, step=1)
 
     if st.sidebar.button("📊 Calculate EMI"):
