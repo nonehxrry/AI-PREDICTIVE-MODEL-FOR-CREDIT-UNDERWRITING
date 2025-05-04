@@ -355,7 +355,7 @@ elif current_step_name == "Final Decision":
             styles = getSampleStyleSheet()
             title_style = styles["h1"]
             heading_style = styles["h2"]
-            bold_style = styles["b"]
+            p = Paragraph(f"<b>Full Name:</b> {loan_details.get('full_name', 'N/A')}", normal_style)
             normal_style = styles["normal"]
 
             def draw_underlined_heading(canvas, text, style, x, y):
