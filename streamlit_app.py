@@ -3,6 +3,7 @@
 
 import subprocess
 import sys
+import os
 
 def install_package(package):
     try:
@@ -12,8 +13,10 @@ def install_package(package):
     except ImportError:
         print(f"{package} not found. Installing...")
         try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-            print(f"{package} installed successfully.")
+            install_dir = "."  # Install in the current directory (app root)
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "--target", install_dir, package])
+            print(f"{package} installed successfully in {install_dir}")
+            sys.path.insert(0, install_dir) # Add to Python path
             return True
         except subprocess.CalledProcessError as e:
             print(f"Error installing {package}: {e}")
@@ -35,6 +38,8 @@ from transformers import pipeline
 from langdetect import detect
 import math
 import os
+
+# ... rest of your streamlit_app.py code ...
 
 # Set page configuration
 st.set_page_config(
