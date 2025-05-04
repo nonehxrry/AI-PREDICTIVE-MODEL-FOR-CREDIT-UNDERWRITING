@@ -138,11 +138,15 @@ def clear_completion(step_index):
     st.session_state["step_complete"][step_index] = False
     update_progress_bar()
 
-st.sidebar.button("Previous", on_click=prev_step)
-st.sidebar.button("Next", on_click=next_step)
+col_nav1, col_nav2 = st.sidebar.columns(2)
+if col_nav1.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0):
+    pass
+if col_nav2.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1):
+    pass
 
-current_step_name = steps[st.session_state["current_step"]]
-st.markdown(f"### {current_step_name}")
+current_step_index = st.session_state["current_step"]
+current_step_name = steps[current_step_index]
+st.markdown(f"### {current_step_name} {'✅' if st.session_state['step_complete'][current_step_index] else ''}")
 
 if current_step_name == "Personal Information":
     with st.container(border=True):
@@ -284,4 +288,185 @@ elif current_step_name == "Final Decision":
         except Exception as e:
             st.error(f"Prediction failed: {e}")
         if st.button("Submit Application"):
-            st.
+            st.success("Loan application submitted successfully!") # Added a submit message
+            mark_complete(3)
+
+# Footer
+st.markdown(
+    """
+    <footer>
+        <p>© Harjit Singh Bhadauriya - 2025 AI Predictive Methods for Credit Underwriting. All rights reserved.</p>
+    </footer>
+    """,
+    unsafe_allow_html=True
+)
+
+# --- Chatbot in Sidebar ---
+st.sidebar.markdown("## 🤖 AI Financial Chatbot with EMI Calculator")
+
+# --- Initialize Chat History & Session Variables ---
+if "chat_messages" not in st.session_state:
+    st.session_state["chat_messages"] = [
+        {"role": "bot", "content": "👋 Hello! You can speak or type your question.\n\n**📌 Categories:**\n- Loan Help 🏦\n- EMI Calculator 💰\n- Credit Score Info 🔍\n- Investments 📊\n- Business Loans 💼\n- Student Loans 🎓"}
+    ]
+if "last_topic" not in st.session_state:
+    st.session_state["last_topic"] = None  # Track conversation topic
+if "emi_active" not in st.session_state:
+    st.session_state["emi_active"] = False  # Track EMI calculator trigger
+if "user_input" not in st.session_state:
+    st.session_state["user_input"] = ""  # Track the input field value
+
+# --- Smarter Chatbot Response System ---
+def chatbot_response(user_message):
+    user_message = user_message.lower().strip()
+
+    # Standard Greetings
+    greetings = ["hello", "hi", "hey", "how are you"]
+    if user_message in greetings:
+        return "👋 Hello! How can I assist you today? You can ask about loans, EMI, or investments!"
+
+    # Loan Categories
+    loan_topics = ["loan help", "loan", "finance", "borrow money"]
+    if any(topic in user_message for topic in loan_topics):
+        st.session_state["last_topic"] = "loan"
+        return "📌 **Loan Help:**\n- **Personal Loans** 🏦\n- **Business Loans** 💼\n- **Student Loans** 🎓\n- **Home & Car Loans** 🚗🏡\n\n💡 Ask about a specific loan type for details!"
+
+
+    # Specific Loans with More Details
+    loan_details = {
+        "personal loan": """🏦 **Personal Loan Details:**
+        - **Loan Amount:** ₹50,000 - ₹25 Lakh
+        - **Interest Rate:** 10-15% per annum
+        - **Collateral:** ❌ Not Required
+        - **Repayment Tenure:** 1-5 years
+        - **Processing Time:** ✅ 24-48 hours for approval
+        - **Eligibility:**
+        - CIBIL Score: **700+**
+        - Monthly Income: **₹25,000+**
+        - Age: **21-60 years**
+        - **Best for:** Medical emergencies, vacations, home renovations, and debt consolidation.
+        - 💡 **Tip:** Lower CIBIL scores may result in higher interest rates.""",
+
+
+        "business loan": """💼 **Business Loan Guide:**
+        - **Loan Amount:** ₹5 Lakh - ₹5 Crore (Varies by bank)
+        - **Interest Rate:** 10-18% per annum
+        - **Collateral:** ✅ Required for large loans (property, assets)
+        - **Repayment Tenure:** 3-10 years
+        - **Processing Time:** 📅 7-15 days
+        - **Eligibility:**
+        - Business Age: **2+ years**
+        - Annual Revenue: **₹10 Lakh+**
+        - Good credit history
+        - **Best for:** Expanding operations, working capital, asset purchase, startup funding.
+        - 💡 **Tip:** Government-backed MSME loans offer lower interest rates for small businesses.""",
+
+        "student loan": """🎓 **Student Loan Guide:**
+        - **Loan Amount:** ₹1 Lakh - ₹50 Lakh
+        - **Interest Rate:** 5-8% per annum (Lower for government schemes)
+        - **Collateral:** ✅ Required for loans above ₹7.5 Lakh
+        - **Repayment Tenure:** 10-15 years (Starts after graduation)
+        - **Processing Time:** 📅 5-10 days
+        - **Eligibility:**
+        - Must be admitted to a recognized institution (India or abroad)
+        - Co-applicant (Parent/Guardian) with stable income
+        - CIBIL Score: **650+**
+        - **Best for:** Tuition, living expenses, and study abroad costs.
+        - 💡 **Tip:** Some banks offer **0% interest grace periods** during the study period.""",
+
+        "home loan": """🏡 **Home Loan Details:**
+        - **Loan Amount:** ₹10 Lakh - ₹1 Crore
+        - **Interest Rate:** 7-9% per annum (Floating & Fixed rates available)
+        - **Collateral:** ✅ Property being purchased serves as collateral
+        - **Repayment Tenure:** 10-30 years
+        - **Processing Time:** 📅 10-15 days
+        - **Eligibility:**
+        - Stable income & employment history
+        - CIBIL Score: **750+**
+        - Down Payment: **20-25% of the property value**
+        - **Best for:** Buying, constructing, or renovating a house.
+        - 💡 **Tip:** First-time home buyers can get tax benefits under **Section 80C & 24(b).**""",
+
+        "car loan": """🚗 **Car Loan Details:**
+        - **Loan Amount:** ₹1 Lakh - ₹50 Lakh
+        - **Interest Rate:** 8-12% per annum
+        - **Collateral:** ❌ Not Required (Car is the collateral)
+        - **Repayment Tenure:** 1-7 years
+        - **Processing Time:** ✅ Quick disbursal (Same-day in some banks)
+        - **Eligibility:**
+        - CIBIL Score: **700+**
+        - Monthly Income: **₹20,000+**
+        - Age: **21-65 years**
+        - **Best for:** New or used car purchase.
+        - 💡 **Tip:** Special **low-interest loans available for Electric Vehicles (EVs).**"""
+    }
+
+    # Check for a specific loan type
+    for key, response in loan_details.items():
+        if key in user_message:
+            st.session_state["last_topic"] = key  # Store last topic
+            return response
+
+    # Follow-Up Questions Based on Last Topic
+    if st.session_state["last_topic"]:
+        if "tell me more" in user_message or "more details" in user_message:
+            # Provide additional details based on the last topic
+            if st.session_state["last_topic"] == "personal loan":
+                return "🏦 **More on Personal Loans:**\n- Great for emergencies, vacations, or home improvements.\n- Processing time: **24-48 hours** in most banks.\n- No specific usage restrictions."
+            elif st.session_state["last_topic"] == "business loan":
+                return "💼 **More on Business Loans:**\n- Best for expansion, working capital, and asset purchase.\n- Some banks offer **low-interest startup loans**."
+            elif st.session_state["last_topic"] == "student loan":
+                return "🎓 **More on Student Loans:**\n- Government banks offer **subsidized loans** for students from low-income families.\n- Some banks provide a **grace period** after graduation."
+            elif st.session_state["last_topic"] == "home loan":
+                return "🏡 **More on Home Loans:**\n- You can apply for **tax benefits** under Section 80C.\n- Banks often offer **fixed or floating interest rates**."
+            elif st.session_state["last_topic"] == "car loan":
+                return "🚗 **More on Car Loans:**\n- Special interest rates available for **electric vehicles (EVs)**.\n- Some banks offer **100% on-road financing** for new cars."
+
+    # EMI Calculator Activation
+    emi_keywords = ["emi", "monthly payment", "calculate emi"]
+    if any(keyword in user_message for keyword in emi_keywords):
+        st.session_state["emi_active"] = True
+        return "📊 **EMI Calculator Activated!** Enter loan details below."
+
+    # Credit Score
+    if "credit score" in user_message or "cibil" in user_message:
+        return "🔍 **Credit Score Guide:**\n- **750+** = Excellent ✅\n- **650-749** = Good 👍\n- **550-649** = Fair ⚠️\n- **Below 550** = Poor ❌\n\nHigher scores = Better loan rates!"
+
+    # Default Response
+    return "🤖 Hmm, I don't have an exact answer for that. Try asking about loans, EMI, or investments!"
+
+# --- Display Chat History ---
+st.sidebar.markdown("### 💬 Chat History:")
+for message in st.session_state["chat_messages"]:
+    role = "👤 You" if message["role"] == "user" else "🤖 Bot"
+    st.sidebar.markdown(f"**{role}:** {message['content']}")
+
+# --- Text Input Field for Manual Chat ---
+user_input = st.sidebar.text_input("💬 Type your question:", value=st.session_state["user_input"], key="chat_input")
+
+# --- Process User Input ---
+if st.sidebar.button("🚀 Send"):
+    if user_input.strip():
+        # Add user input to chat history
+        st.session_state["chat_messages"].append({"role": "user", "content": user_input})
+
+        # Get bot response
+        bot_reply = chatbot_response(user_input)
+        st.session_state["chat_messages"].append({"role": "bot", "content": bot_reply})
+
+        # Clear input field by resetting session state
+        st.session_state["user_input"] = ""
+
+        # Refresh UI to show cleared input field
+        st.rerun()
+
+# --- Display EMI Calculator if Triggered ---
+if st.session_state["emi_active"]:
+    loan_amount = st.sidebar.number_input("Loan Amount (₹)", min_value=1000, value=500000, step=1000)
+    interest_rate = st.sidebar.number_input("Interest Rate (%)", min_value=1.0, value=10.0, step=0.1)
+    tenure = st.sidebar.number_input("Tenure (Years)", min_value=1, value=5, step=1)
+
+    if st.sidebar.button("📊 Calculate EMI"):
+        emi_result = round((loan_amount * (interest_rate / 12 / 100) * (1 + (interest_rate / 12 / 100)) ** (tenure * 12)) / ((1 + (interest_rate / 12 / 100)) ** (tenure * 12) - 1), 2)
+        st.sidebar.success(f"📌 Your Monthly EMI: ₹{emi_result:,}")
+        st.session_state["emi_active"] = False  # Reset EMI trigger
