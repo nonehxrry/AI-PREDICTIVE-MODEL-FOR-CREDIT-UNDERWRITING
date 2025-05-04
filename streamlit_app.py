@@ -40,6 +40,7 @@ from reportlab.platypus import Paragraph, Image
 from PIL import Image as PILImage
 from transformers import pipeline
 from langdetect import detect
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import math
 import os
 
@@ -310,8 +311,6 @@ elif current_step_name == "Upload Documents":
         col_prev.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
         col_next.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
         st.markdown("</div>", unsafe_allow_html=True)
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-
 elif current_step_name == "Final Decision":
     with st.container():
         st.markdown("#### Review your details and get the decision:")
