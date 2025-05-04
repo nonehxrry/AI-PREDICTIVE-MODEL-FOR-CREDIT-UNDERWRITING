@@ -1,9 +1,15 @@
 #I Love My India
 #Harjit
 
-import subprocess
 import sys
 import os
+
+# Add the current directory to sys.path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+import subprocess
 
 def install_package(package):
     try:
@@ -16,7 +22,7 @@ def install_package(package):
             install_dir = "."  # Install in the current directory (app root)
             subprocess.check_call([sys.executable, "-m", "pip", "install", "--target", install_dir, package])
             print(f"{package} installed successfully in {install_dir}")
-            sys.path.insert(0, install_dir) # Add to Python path
+            # sys.path.insert(0, install_dir) # Already added at the top
             return True
         except subprocess.CalledProcessError as e:
             print(f"Error installing {package}: {e}")
@@ -42,6 +48,8 @@ from transformers import pipeline
 from langdetect import detect
 import math
 import os
+
+# ... rest of your streamlit_app.py code ...
 
 # ... rest of your streamlit_app.py code ...
 
