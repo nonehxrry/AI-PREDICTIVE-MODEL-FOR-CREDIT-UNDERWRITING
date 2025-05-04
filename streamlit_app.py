@@ -1,11 +1,26 @@
 #I Love My India
 #Harjit
+
+import subprocess
+import sys
+
+def install_package(package):
+    try:
+        __import__(package)
+        print(f"{package} is already installed.")
+    except ImportError:
+        print(f"{package} not found. Installing...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        print(f"{package} installed successfully.")
+
+install_package("fpdf2")
+
 import streamlit as st
 import pandas as pd
 import joblib
 from io import BytesIO
 from fpdf2 import FPDF
-from PIL import Image  # Import Pillow
+from PIL import Image
 from transformers import pipeline
 from langdetect import detect
 import math
