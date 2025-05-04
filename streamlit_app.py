@@ -25,15 +25,19 @@ def install_package(package):
             print(f"Error: pip not found.")
             return False
 
-if not install_package("fpdf2"):
-    print("Failed to install fpdf2. The app might not function correctly.")
+if not install_package("reportlab"):
+    print("Failed to install reportlab. The app might not function correctly.")
 
 import streamlit as st
 import pandas as pd
 import joblib
 from io import BytesIO
-from fpdf2 import FPDF
-from PIL import Image
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph, Image
+from PIL import Image as PILImage
 from transformers import pipeline
 from langdetect import detect
 import math
@@ -348,97 +352,146 @@ elif current_step_name == "Final Decision":
                 st.markdown("<h3 style='color:green;'>Loan Approved ✅</h3>", unsafe_allow_html=True)
                 st.success(f"Approval Probability: {prediction_proba[0][0]:.2f}")
 
-            # Generate PDF Report
-            pdf = FPDF()
-            pdf.add_page()
-            pdf.set_font("Arial", size=12)
+            # Generate PDF Report using reportlab
+            buffer = BytesIO()
+            c = canvas.Canvas(buffer, pagesize=letter)
+            styles = getSampleStyleSheet()
+            title_style = styles["h1"]
+            normal_style = styles["normal"]
 
             # Title
-            pdf.set_font("Arial", style="BU", size=16)
-            pdf.cell(200, 10, txt="Loan Application Decision Report", ln=True, align="C")
-            pdf.ln(10)
-            pdf.set_font("Arial", size=12)
+            title = Paragraph("Loan Application Decision Report", title_style)
+            title.wrapOn(c, 500, 50)
+            title.drawOn(c, 50, 750)
+
+            y_position = 700
+            line_height = 18
 
             # Personal Information
-            pdf.cell(200, 10, txt="Personal Information", ln=True)
-            pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-            pdf.ln(5)
-            pdf.cell(200, 10, txt=f"Full Name: {loan_details.get('full_name', 'N/A')}", ln=True)
-            pdf.cell(200, 10, txt=f"Email: {loan_details.get('email', 'N/A')}", ln=True)
-            pdf.cell(200, 10, txt=f"Phone: {loan_details.get('phone', 'N/A')}", ln=True)
-            pdf.ln(10)
+            p = Paragraph("<font size=14><b>Personal Information</b></font>", normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height + 5
+            c.line(50, y_position, 550, y_position)
+            y_position -= 5
+
+            p = Paragraph(f"Full Name: {loan_details.get('full_name', 'N/A')}", normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height
+
+            p = Paragraph(f"Email: {loan_details.get('email', 'N/A')}", normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height
+
+            p = Paragraph(f"Phone: {loan_details.get('phone', 'N/A')}", normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height + 10
 
             # Loan Details
-            pdf.cell(200, 10, txt="Loan Details", ln=True)
-            pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-            pdf.ln(5)
-            pdf.cell(200, 10, txt=f"CIBIL Score: {loan_details.get('cibil_score', 'N/A')}", ln=True)
-            pdf.cell(200, 10, txt=f"Loan Amount: Rs. {loan_details.get('loan_amount', 'N/A'):,.2f}", ln=True)
-            pdf.cell(200, 10, txt=f"Loan Term: {loan_details.get('loan_term', 'N/A')} months", ln=True)
+            p = Paragraph("<font size=14><b>Loan Details</b></font>", normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height + 5
+            c.line(50, y_position, 550, y_position)
+            y_position -= 5
+
+            p = Paragraph(f"CIBIL Score: {loan_details.get('cibil_score', 'N/A')}", normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height
+
+            p = Paragraph(f"Loan Amount: Rs. {loan_details.get('loan_amount', 'N/A'):,.2f}", normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height
+
+            p = Paragraph(f"Loan Term: {loan_details.get('loan_term', 'N/A')} months", normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height
+
             emi_value = loan_details.get("emi", None)
-            if emi_value is not None:
-                pdf.cell(200, 10, txt=f"Estimated EMI: Rs. {emi_value:,.2f}", ln=True)
-            else:
-                pdf.cell(200, 10, txt="Estimated EMI: Not Calculated", ln=True)
-            pdf.ln(10)
+            emi_text = f"Estimated EMI: Rs. {emi_value:,.2f}" if emi_value is not None else "Estimated EMI: Not Calculated"
+            p = Paragraph(emi_text, normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height + 10
 
             # Prediction Results
-            pdf.cell(200, 10, txt="Prediction Results", ln=True)
-            pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-            pdf.ln(5)
-            pdf.cell(200, 10, txt=f"Decision: {'Approved' if prediction[0] == 0 else 'Rejected'}", ln=True)
-            pdf.cell(200, 10, txt=f"Approval Probability: {prediction_proba[0][0]:.2f}", ln=True)
-            pdf.cell(200, 10, txt=f"Rejection Probability: {prediction_proba[0][1]:.2f}", ln=True)
-            pdf.ln(10)
+            p = Paragraph("<font size=14><b>Prediction Results</b></font>", normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height + 5
+            c.line(50, y_position, 550, y_position)
+            y_position -= 5
 
-            # Add Documents to PDF using Pillow
-            try:
-                if loan_details["id_proof"] is not None:
-                    pdf.add_page()
-                    pdf.set_font("Arial", size=12)
-                    pdf.cell(200, 10, txt="Uploaded ID Proof", ln=True)
-                    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-                    pdf.ln(5)
+            decision_text = f"Decision: {'Approved' if prediction[0] == 0 else 'Rejected'}"
+            p = Paragraph(decision_text, normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height
+
+            approval_prob_text = f"Approval Probability: {prediction_proba[0][0]:.2f}"
+            p = Paragraph(approval_prob_text, normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height
+
+            rejection_prob_text = f"Rejection Probability: {prediction_proba[0][1]:.2f}"
+            p = Paragraph(rejection_prob_text, normal_style)
+            p.wrapOn(c, 500, line_height)
+            p.drawOn(c, 50, y_position)
+            y_position -= line_height + 10
+
+            # Add Images
+            image_y_position = 750
+            image_x_start = 300
+            image_width = 150
+            image_height = 100
+            image_offset = 120
+
+            if loan_details["id_proof"] is not None:
+                try:
                     img_bytes = loan_details["id_proof"].getvalue()
-                    with Image.open(BytesIO(img_bytes)) as img:
-                        img_format = img.format.lower()
-                        temp_buffer = BytesIO()
-                        img.save(temp_buffer, format="PNG")
-                        temp_buffer.seek(0)
-                        pdf.image(temp_buffer, w=180)
+                    pil_img = PILImage.open(BytesIO(img_bytes))
+                    img_buffer = BytesIO()
+                    pil_img.save(img_buffer, format="PNG")
+                    img_buffer.seek(0)
+                    c.drawImage(img_buffer, image_x_start, image_y_position - image_offset, width=image_width, height=image_height, preserveAspectRatio=True)
+                    p = Paragraph("<font size=10>Uploaded ID Proof</font>", normal_style)
+                    p.wrapOn(c, image_width, line_height)
+                    p.drawOn(c, image_x_start, image_y_position - image_offset - 15)
+                    image_offset += 120
+                except Exception as e:
+                    st.error(f"Error adding ID Proof to PDF: {e}")
 
-                if loan_details["address_proof"] is not None:
-                    pdf.add_page()
-                    pdf.set_font("Arial", size=12)
-                    pdf.cell(200, 10, txt="Uploaded Address Proof", ln=True)
-                    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-                    pdf.ln(5)
+            if loan_details["address_proof"] is not None:
+                try:
                     img_bytes = loan_details["address_proof"].getvalue()
-                    with Image.open(BytesIO(img_bytes)) as img:
-                        img_format = img.format.lower()
-                        temp_buffer = BytesIO()
-                        img.save(temp_buffer, format="PNG")
-                        temp_buffer.seek(0)
-                        pdf.image(temp_buffer, w=180)
+                    pil_img = PILImage.open(BytesIO(img_bytes))
+                    img_buffer = BytesIO()
+                    pil_img.save(img_buffer, format="PNG")
+                    img_buffer.seek(0)
+                    c.drawImage(img_buffer, image_x_start, image_y_position - image_offset, width=image_width, height=image_height, preserveAspectRatio=True)
+                    p = Paragraph("<font size=10>Uploaded Address Proof</font>", normal_style)
+                    p.wrapOn(c, image_width, line_height)
+                    p.drawOn(c, image_x_start, image_y_position - image_offset - 15)
+                except Exception as e:
+                    st.error(f"Error adding Address Proof to PDF: {e}")
 
-                # Save PDF to buffer
-                buffer = BytesIO()
-                pdf_bytes = pdf.output(dest="S").encode("latin1")
-                buffer.write(pdf_bytes)
-                buffer.seek(0)
+            c.save()
+            buffer.seek(0)
 
-                st.download_button(
-                    label="Download Report as PDF",
-                    data=buffer,
-                    file_name="loan_prediction_report.pdf",
-                    mime="application/pdf",
-                    key="pdf_download_button"
-                )
-
-            except ImportError:
-                st.error("Pillow (PIL) library is required to handle images. Please add 'Pillow' to your requirements.txt.")
-            except Exception as pdf_e:
-                st.error(f"PDF Generation Error: {pdf_e}")
+            st.download_button(
+                label="Download Report as PDF",
+                data=buffer,
+                file_name="loan_prediction_report.pdf",
+                mime="application/pdf",
+                key="pdf_download_button"
+            )
 
         except Exception as e:
             st.error(f"Prediction failed: {e}")
