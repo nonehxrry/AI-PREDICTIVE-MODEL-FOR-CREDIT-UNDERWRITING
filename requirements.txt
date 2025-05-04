@@ -1,12 +1,9 @@
-
-
+streamlit
 pandas
 scikit-learn
-streamlit
 matplotlib
 seaborn
 joblib
 fpdf2
-fpdf
 transformers
 langdetect
