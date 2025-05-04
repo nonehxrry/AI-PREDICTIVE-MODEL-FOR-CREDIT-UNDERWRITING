@@ -272,7 +272,7 @@ if current_step_name == "Personal Information":
         col_next.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
         st.markdown("</div>", unsafe_allow_html=True)
 elif current_step_name == "Loan Details":
-    with st.container(border=True, class_="step-container"):
+    with st.container(): # Remove border=True and class_="step-container"
         st.markdown("#### Enter the details of the loan you are seeking:")
         st.session_state["loan_details"]["cibil_score"] = st.slider("CIBIL Score (300-900):", 300, 900, st.session_state["loan_details"]["cibil_score"], key="cibil")
         st.session_state["loan_details"]["income_annum"] = st.number_input("Annual Income (INR):", min_value=0, step=10000, value=st.session_state["loan_details"]["income_annum"], key="income")
@@ -308,8 +308,12 @@ elif current_step_name == "Loan Details":
         col_prev.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
         col_next.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
         st.markdown("</div>", unsafe_allow_html=True)
+
+**Corrected "Upload Documents" Section:**
+
+```python
 elif current_step_name == "Upload Documents":
-    with st.container(border=True, class_="step-container"):
+    with st.container(): # Remove border=True and class_="step-container"
         st.markdown("#### Please upload the required documents:")
         st.session_state["loan_details"]["id_proof"] = st.file_uploader("Upload ID Proof (e.g., Aadhaar, Passport)", type=["png", "jpg", "jpeg"], key="id_proof")
         st.session_state["loan_details"]["address_proof"] = st.file_uploader("Upload Address Proof (e.g., Utility Bill, Bank Statement)", type=["png", "jpg", "jpeg"], key="address_proof")
