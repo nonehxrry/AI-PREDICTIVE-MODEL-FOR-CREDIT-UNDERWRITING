@@ -4,6 +4,7 @@ scikit-learn
 matplotlib
 seaborn
 joblib
-fpdf
+fpdf2
 transformers
 langdetect
+Pillow
