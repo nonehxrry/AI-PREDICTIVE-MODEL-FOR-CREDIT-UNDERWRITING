@@ -310,6 +310,8 @@ elif current_step_name == "Upload Documents":
         col_prev.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
         col_next.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
         st.markdown("</div>", unsafe_allow_html=True)
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+
 elif current_step_name == "Final Decision":
     with st.container():
         st.markdown("#### Review your details and get the decision:")
@@ -355,7 +357,7 @@ elif current_step_name == "Final Decision":
             styles = getSampleStyleSheet()
             title_style = styles["h1"]
             heading_style = styles["h2"]
-            normal_style = styles["normal"]  # Define normal_style here
+            normal_style = styles.get("Normal", ParagraphStyle(name='Normal', fontName='Helvetica', fontSize=10))
 
             def draw_underlined_heading(canvas, text, style, x, y):
                 p = Paragraph(text, style)
