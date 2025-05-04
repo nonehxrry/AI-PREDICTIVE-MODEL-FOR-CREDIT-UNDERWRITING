@@ -259,7 +259,7 @@ current_step_name = steps[current_step_index]
 st.markdown(f"<h3 class='step-title'>{current_step_name} {'<span class=\"completed-tick\">✅</span>' if st.session_state['step_complete'][current_step_index] else ''}</h3>", unsafe_allow_html=True)
 
 if current_step_name == "Personal Information":
-    with st.container(border=True, class_="step-container"):
+    with st.container(): # Remove border=True and class_="step-container"
         st.markdown("#### Please provide your personal details:")
         st.session_state["loan_details"]["full_name"] = st.text_input("Full Name", st.session_state["loan_details"]["full_name"], key="full_name")
         st.session_state["loan_details"]["email"] = st.text_input("Email Address", st.session_state["loan_details"]["email"], key="email")
