@@ -354,7 +354,7 @@ elif current_step_name == "Final Decision":
             c = canvas.Canvas(buffer, pagesize=letter)
             styles = getSampleStyleSheet()
             title_style = styles["h1"]
-            normal_style = styles["normal"]
+            normal_style = styles.get('Normal', styles['Normal'])
 
             # Title
             title = Paragraph("Loan Application Decision Report", title_style)
