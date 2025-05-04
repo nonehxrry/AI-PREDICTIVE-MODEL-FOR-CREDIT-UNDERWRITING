@@ -4,7 +4,7 @@ scikit-learn
 matplotlib
 seaborn
 joblib
-fpdf2
+fpdf2==2.7.7
 transformers
 langdetect
 Pillow
