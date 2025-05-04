@@ -262,7 +262,7 @@ if current_step_name == "Personal Information":
         col_next.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
         st.markdown("</div>", unsafe_allow_html=True)
 elif current_step_name == "Loan Details":
-    with st.container():
+    with st.container(): # ONLY this, no arguments inside
         st.markdown("#### Enter the details of the loan you are seeking:")
         st.session_state["loan_details"]["cibil_score"] = st.slider("CIBIL Score (300-900):", 300, 900, st.session_state["loan_details"]["cibil_score"], key="cibil")
         st.session_state["loan_details"]["income_annum"] = st.number_input("Annual Income (INR):", min_value=0, step=10000, value=st.session_state["loan_details"]["income_annum"], key="income")
