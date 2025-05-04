@@ -8,12 +8,22 @@ def install_package(package):
     try:
         __import__(package)
         print(f"{package} is already installed.")
+        return True
     except ImportError:
         print(f"{package} not found. Installing...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-        print(f"{package} installed successfully.")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+            print(f"{package} installed successfully.")
+            return True
+        except subprocess.CalledProcessError as e:
+            print(f"Error installing {package}: {e}")
+            return False
+        except FileNotFoundError:
+            print(f"Error: pip not found.")
+            return False
 
-install_package("fpdf2")
+if not install_package("fpdf2"):
+    print("Failed to install fpdf2. The app might not function correctly.")
 
 import streamlit as st
 import pandas as pd
