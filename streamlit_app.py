@@ -293,7 +293,7 @@ elif current_step_name == "Final Decision":
                     pdf.add_page()
                     pdf.set_font("Arial", size=12)
                     pdf.cell(200, 10, txt="Uploaded ID Proof:", ln=True)
-                    id_proof_bytes = loan_details["id_proof"].getvalue()
+                    id_proof_bytes = bytes(loan_details["id_proof"].getvalue())  # Explicitly convert to bytes
                     with BytesIO(id_proof_bytes) as img_file:
                         pdf.image(img_file, w=180)
 
@@ -301,7 +301,7 @@ elif current_step_name == "Final Decision":
                     pdf.add_page()
                     pdf.set_font("Arial", size=12)
                     pdf.cell(200, 10, txt="Uploaded Address Proof:", ln=True)
-                    address_proof_bytes = loan_details["address_proof"].getvalue()
+                    address_proof_bytes = bytes(loan_details["address_proof"].getvalue())  # Explicitly convert to bytes
                     with BytesIO(address_proof_bytes) as img_file:
                         pdf.image(img_file, w=180)
 
