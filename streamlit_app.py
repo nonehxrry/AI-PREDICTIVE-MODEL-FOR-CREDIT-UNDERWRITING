@@ -354,101 +354,108 @@ elif current_step_name == "Final Decision":
             c = canvas.Canvas(buffer, pagesize=letter)
             styles = getSampleStyleSheet()
             title_style = styles["h1"]
-            normal_style = styles.get('Normal', styles['Normal'])
+            heading_style = styles["h2"]
+            bold_style = styles["b"]
+            normal_style = styles["normal"]
+
+            def draw_underlined_heading(canvas, text, style, x, y):
+                p = Paragraph(text, style)
+                w, h = p.wrapOn(canvas, letter[0] - 2 * inch, 50)
+                p.drawOn(canvas, x, y)
+                canvas.line(x, y - 2, x + w, y - 2)
+                return h
 
             # Title
             title = Paragraph("Loan Application Decision Report", title_style)
-            title.wrapOn(c, 500, 50)
-            title.drawOn(c, 50, 750)
+            title.wrapOn(c, letter[0] - 2 * inch, 50)
+            title.drawOn(c, inch, letter[1] - inch - 20)
+            current_y = letter[1] - inch - 50
 
-            y_position = 700
-            line_height = 18
+            # Border
+            c.rect(inch, inch, letter[0] - 2 * inch, letter[1] - 2 * inch)
 
             # Personal Information
-            p = Paragraph("<font size=14><b>Personal Information</b></font>", normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height + 5
-            c.line(50, y_position, 550, y_position)
-            y_position -= 5
+            heading_height = draw_underlined_heading(c, "Personal Information", heading_style, inch, current_y)
+            current_y -= heading_height + 0.2 * inch
+            c.line(inch, current_y, letter[0] - inch, current_y)
+            current_y -= 0.1 * inch
 
-            p = Paragraph(f"Full Name: {loan_details.get('full_name', 'N/A')}", normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height
+            p = Paragraph(f"<b>Full Name:</b> {loan_details.get('full_name', 'N/A')}", normal_style)
+            p.wrapOn(c, letter[0] - 2 * inch, 50)
+            p.drawOn(c, inch, current_y)
+            current_y -= 0.2 * inch
 
-            p = Paragraph(f"Email: {loan_details.get('email', 'N/A')}", normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height
+            p = Paragraph(f"<b>Email:</b> {loan_details.get('email', 'N/A')}", normal_style)
+            p.wrapOn(c, letter[0] - 2 * inch, 50)
+            p.drawOn(c, inch, current_y)
+            current_y -= 0.2 * inch
 
-            p = Paragraph(f"Phone: {loan_details.get('phone', 'N/A')}", normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height + 10
+            p = Paragraph(f"<b>Phone:</b> {loan_details.get('phone', 'N/A')}", normal_style)
+            p.wrapOn(c, letter[0] - 2 * inch, 50)
+            p.drawOn(c, inch, current_y)
+            current_y -= 0.3 * inch
 
             # Loan Details
-            p = Paragraph("<font size=14><b>Loan Details</b></font>", normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height + 5
-            c.line(50, y_position, 550, y_position)
-            y_position -= 5
+            heading_height = draw_underlined_heading(c, "Loan Details", heading_style, inch, current_y)
+            current_y -= heading_height + 0.2 * inch
+            c.line(inch, current_y, letter[0] - inch, current_y)
+            current_y -= 0.1 * inch
 
-            p = Paragraph(f"CIBIL Score: {loan_details.get('cibil_score', 'N/A')}", normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height
+            p = Paragraph(f"<b>CIBIL Score:</b> {loan_details.get('cibil_score', 'N/A')}", normal_style)
+            p.wrapOn(c, letter[0] - 2 * inch, 50)
+            p.drawOn(c, inch, current_y)
+            current_y -= 0.2 * inch
 
-            p = Paragraph(f"Loan Amount: Rs. {loan_details.get('loan_amount', 'N/A'):,.2f}", normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height
+            p = Paragraph(f"<b>Loan Amount:</b> Rs. {loan_details.get('loan_amount', 'N/A'):,.2f}", normal_style)
+            p.wrapOn(c, letter[0] - 2 * inch, 50)
+            p.drawOn(c, inch, current_y)
+            current_y -= 0.2 * inch
 
-            p = Paragraph(f"Loan Term: {loan_details.get('loan_term', 'N/A')} months", normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height
+            p = Paragraph(f"<b>Loan Term:</b> {loan_details.get('loan_term', 'N/A')} months", normal_style)
+            p.wrapOn(c, letter[0] - 2 * inch, 50)
+            p.drawOn(c, inch, current_y)
+            current_y -= 0.2 * inch
 
             emi_value = loan_details.get("emi", None)
-            emi_text = f"Estimated EMI: Rs. {emi_value:,.2f}" if emi_value is not None else "Estimated EMI: Not Calculated"
+            emi_text = f"<b>Estimated EMI:</b> Rs. {emi_value:,.2f}" if emi_value is not None else "<b>Estimated EMI:</b> Not Calculated"
             p = Paragraph(emi_text, normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height + 10
+            p.wrapOn(c, letter[0] - 2 * inch, 50)
+            p.drawOn(c, inch, current_y)
+            current_y -= 0.3 * inch
 
             # Prediction Results
-            p = Paragraph("<font size=14><b>Prediction Results</b></font>", normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height + 5
-            c.line(50, y_position, 550, y_position)
-            y_position -= 5
+            heading_height = draw_underlined_heading(c, "Prediction Results", heading_style, inch, current_y)
+            current_y -= heading_height + 0.2 * inch
+            c.line(inch, current_y, letter[0] - inch, current_y)
+            current_y -= 0.1 * inch
 
-            decision_text = f"Decision: {'Approved' if prediction[0] == 0 else 'Rejected'}"
+            decision_text = f"<b>Decision:</b> {'Approved' if prediction[0] == 0 else 'Rejected'}"
             p = Paragraph(decision_text, normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height
+            p.wrapOn(c, letter[0] - 2 * inch, 50)
+            p.drawOn(c, inch, current_y)
+            current_y -= 0.2 * inch
 
-            approval_prob_text = f"Approval Probability: {prediction_proba[0][0]:.2f}"
+            approval_prob_text = f"<b>Approval Probability:</b> {prediction_proba[0][0]:.2f}"
             p = Paragraph(approval_prob_text, normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height
+            p.wrapOn(c, letter[0] - 2 * inch, 50)
+            p.drawOn(c, inch, current_y)
+            current_y -= 0.2 * inch
 
-            rejection_prob_text = f"Rejection Probability: {prediction_proba[0][1]:.2f}"
+            rejection_prob_text = f"<b>Rejection Probability:</b> {prediction_proba[0][1]:.2f}"
             p = Paragraph(rejection_prob_text, normal_style)
-            p.wrapOn(c, 500, line_height)
-            p.drawOn(c, 50, y_position)
-            y_position -= line_height + 10
+            p.wrapOn(c, letter[0] - 2 * inch, 50)
+            p.drawOn(c, inch, current_y)
+            current_y -= 0.3 * inch
 
-            # Add Images
-            image_y_position = 750
-            image_x_start = 300
-            image_width = 150
-            image_height = 100
-            image_offset = 120
+            # Add Images (Adjusted Positioning)
+            image_y_position = letter[1] - 2 * inch - 20 # Start below the border
+            image_x_start = inch + 20
+            image_width = 100
+            image_height = 75
+            image_offset_x = 120
+            image_text_offset_y = 10
+
+            c.setFont("Helvetica", 8) # Set font for image labels
 
             if loan_details["id_proof"] is not None:
                 try:
@@ -457,25 +464,21 @@ elif current_step_name == "Final Decision":
                     img_buffer = BytesIO()
                     pil_img.save(img_buffer, format="PNG")
                     img_buffer.seek(0)
-                    c.drawImage(img_buffer, image_x_start, image_y_position - image_offset, width=image_width, height=image_height, preserveAspectRatio=True)
-                    p = Paragraph("<font size=10>Uploaded ID Proof</font>", normal_style)
-                    p.wrapOn(c, image_width, line_height)
-                    p.drawOn(c, image_x_start, image_y_position - image_offset - 15)
-                    image_offset += 120
+                    c.drawImage(img_buffer, image_x_start, image_y_position - image_height, width=image_width, height=image_height, preserveAspectRatio=True)
+                    c.drawString(image_x_start, image_y_position - image_height - image_text_offset_y, "ID Proof")
+                    image_x_start += image_offset_x
                 except Exception as e:
                     st.error(f"Error adding ID Proof to PDF: {e}")
 
-            if loan_details["address_proof"] is not None:
+            if loan_details["address_proof"] is not None and image_x_start < letter[0] - inch - image_width:
                 try:
                     img_bytes = loan_details["address_proof"].getvalue()
                     pil_img = PILImage.open(BytesIO(img_bytes))
                     img_buffer = BytesIO()
                     pil_img.save(img_buffer, format="PNG")
                     img_buffer.seek(0)
-                    c.drawImage(img_buffer, image_x_start, image_y_position - image_offset, width=image_width, height=image_height, preserveAspectRatio=True)
-                    p = Paragraph("<font size=10>Uploaded Address Proof</font>", normal_style)
-                    p.wrapOn(c, image_width, line_height)
-                    p.drawOn(c, image_x_start, image_y_position - image_offset - 15)
+                    c.drawImage(img_buffer, image_x_start, image_y_position - image_height, width=image_width, height=image_height, preserveAspectRatio=True)
+                    c.drawString(image_x_start, image_y_position - image_height - image_text_offset_y, "Address Proof")
                 except Exception as e:
                     st.error(f"Error adding Address Proof to PDF: {e}")
 
@@ -501,7 +504,6 @@ elif current_step_name == "Final Decision":
         if st.button("Submit Application", key="submit_application_final"):
             st.success("Loan application submitted successfully!")
             mark_complete(3)
-
 # Footer
 st.markdown(
     """
