@@ -311,7 +311,7 @@ elif current_step_name == "Upload Documents":
         col_next.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
         st.markdown("</div>", unsafe_allow_html=True)
 elif current_step_name == "Final Decision":
-    with st.container(border=True, class_="step-container"):
+    with st.container():
         st.markdown("#### Review your details and get the decision:")
         loan_details = st.session_state["loan_details"]
         # Prepare input data for prediction
