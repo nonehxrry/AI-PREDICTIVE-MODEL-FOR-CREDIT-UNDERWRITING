@@ -294,14 +294,16 @@ elif current_step_name == "Final Decision":
                     pdf.set_font("Arial", size=12)
                     pdf.cell(200, 10, txt="Uploaded ID Proof:", ln=True)
                     id_proof_bytes = loan_details["id_proof"].getvalue()
-                    pdf.image(id_proof_bytes, w=180)
+                    with BytesIO(id_proof_bytes) as img_file:
+                        pdf.image(img_file, w=180)
 
                 if loan_details["address_proof"] is not None:
                     pdf.add_page()
                     pdf.set_font("Arial", size=12)
                     pdf.cell(200, 10, txt="Uploaded Address Proof:", ln=True)
                     address_proof_bytes = loan_details["address_proof"].getvalue()
-                    pdf.image(address_proof_bytes, w=180)
+                    with BytesIO(address_proof_bytes) as img_file:
+                        pdf.image(img_file, w=180)
 
                 # Save PDF to buffer
                 buffer = BytesIO()
