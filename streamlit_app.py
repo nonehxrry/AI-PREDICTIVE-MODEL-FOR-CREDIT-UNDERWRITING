@@ -265,7 +265,7 @@ elif current_step_name == "Final Decision":
             pdf.cell(200, 10, txt="Personal Information:", ln=True)
             pdf.cell(200, 10, txt=f"Full Name: {loan_details.get('full_name', 'N/A')}", ln=True)
             pdf.cell(200, 10, txt=f"Email: {loan_details.get('email', 'N/A')}", ln=True)
-            pdf.cell(200, 10, txt(f"Phone: {loan_details.get('phone', 'N/A')}", ln=True)
+            pdf.cell(200, 10, txt=f"Phone: {loan_details.get('phone', 'N/A')}", ln=True)
             pdf.ln(10)
 
 
