@@ -1,15 +1,9 @@
 #I Love My India
 #Harjit
 
+import subprocess
 import sys
 import os
-
-# Add the current directory to sys.path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-if current_dir not in sys.path:
-    sys.path.insert(0, current_dir)
-
-import subprocess
 
 def install_package(package):
     try:
@@ -22,7 +16,7 @@ def install_package(package):
             install_dir = "."  # Install in the current directory (app root)
             subprocess.check_call([sys.executable, "-m", "pip", "install", "--target", install_dir, package])
             print(f"{package} installed successfully in {install_dir}")
-            # sys.path.insert(0, install_dir) # Already added at the top
+            sys.path.insert(0, install_dir) # Add to Python path
             return True
         except subprocess.CalledProcessError as e:
             print(f"Error installing {package}: {e}")
@@ -48,10 +42,6 @@ from transformers import pipeline
 from langdetect import detect
 import math
 import os
-
-# ... rest of your streamlit_app.py code ...
-
-# ... rest of your streamlit_app.py code ...
 
 # Set page configuration
 st.set_page_config(
@@ -259,7 +249,7 @@ current_step_name = steps[current_step_index]
 st.markdown(f"<h3 class='step-title'>{current_step_name} {'<span class=\"completed-tick\">✅</span>' if st.session_state['step_complete'][current_step_index] else ''}</h3>", unsafe_allow_html=True)
 
 if current_step_name == "Personal Information":
-    with st.container(): # Remove border=True and class_="step-container"
+    with st.container():
         st.markdown("#### Please provide your personal details:")
         st.session_state["loan_details"]["full_name"] = st.text_input("Full Name", st.session_state["loan_details"]["full_name"], key="full_name")
         st.session_state["loan_details"]["email"] = st.text_input("Email Address", st.session_state["loan_details"]["email"], key="email")
@@ -272,7 +262,7 @@ if current_step_name == "Personal Information":
         col_next.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
         st.markdown("</div>", unsafe_allow_html=True)
 elif current_step_name == "Loan Details":
-    with st.container(): # Ensure these arguments are removed
+    with st.container():
         st.markdown("#### Enter the details of the loan you are seeking:")
         st.session_state["loan_details"]["cibil_score"] = st.slider("CIBIL Score (300-900):", 300, 900, st.session_state["loan_details"]["cibil_score"], key="cibil")
         st.session_state["loan_details"]["income_annum"] = st.number_input("Annual Income (INR):", min_value=0, step=10000, value=st.session_state["loan_details"]["income_annum"], key="income")
@@ -308,12 +298,8 @@ elif current_step_name == "Loan Details":
         col_prev.button("Previous", on_click=prev_step, disabled=st.session_state["current_step"] == 0)
         col_next.button("Next", on_click=next_step, disabled=st.session_state["current_step"] == len(steps) - 1)
         st.markdown("</div>", unsafe_allow_html=True)
-
-**Corrected "Upload Documents" Section:**
-
-```python
 elif current_step_name == "Upload Documents":
-    with st.container(): # Remove border=True and class_="step-container"
+    with st.container():
         st.markdown("#### Please upload the required documents:")
         st.session_state["loan_details"]["id_proof"] = st.file_uploader("Upload ID Proof (e.g., Aadhaar, Passport)", type=["png", "jpg", "jpeg"], key="id_proof")
         st.session_state["loan_details"]["address_proof"] = st.file_uploader("Upload Address Proof (e.g., Utility Bill, Bank Statement)", type=["png", "jpg", "jpeg"], key="address_proof")
@@ -328,7 +314,6 @@ elif current_step_name == "Final Decision":
     with st.container(border=True, class_="step-container"):
         st.markdown("#### Review your details and get the decision:")
         loan_details = st.session_state["loan_details"]
-
         # Prepare input data for prediction
         input_data = pd.DataFrame({
             "cibil_score": [loan_details["cibil_score"]],
